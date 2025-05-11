@@ -81,6 +81,78 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1036&q=80",
     category: "electronics",
     stock: 14
+  },
+  {
+    id: 9,
+    name: "Handmade Soap Set",
+    description: "Organic handmade soap set with natural ingredients",
+    price: 24.99,
+    image: "https://images.unsplash.com/photo-1607006483224-75ee0df7c8a4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1035&q=80",
+    category: "home",
+    stock: 25
+  },
+  {
+    id: 10,
+    name: "Wooden Cutting Board",
+    description: "Premium handcrafted acacia wood cutting board",
+    price: 49.99,
+    image: "https://images.unsplash.com/photo-1592923537899-714f8600c111?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+    category: "home",
+    stock: 15
+  },
+  {
+    id: 11,
+    name: "Scented Candle",
+    description: "Long-lasting scented soy candle in a glass jar",
+    price: 19.99,
+    image: "https://images.unsplash.com/photo-1603006905393-cdc32372b217?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+    category: "home",
+    stock: 30
+  },
+  {
+    id: 12,
+    name: "Leather Wallet",
+    description: "Slim leather wallet with RFID protection",
+    price: 59.99,
+    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80",
+    category: "accessories",
+    stock: 18
+  },
+  {
+    id: 13,
+    name: "Cotton Throw Pillow",
+    description: "Soft decorative throw pillow with removable cover",
+    price: 34.99,
+    image: "https://images.unsplash.com/photo-1565878259814-f4f39c83e25e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+    category: "home",
+    stock: 22
+  },
+  {
+    id: 14,
+    name: "Bamboo Water Bottle",
+    description: "Eco-friendly insulated bamboo water bottle",
+    price: 29.99,
+    image: "https://images.unsplash.com/photo-1589365278144-c9e705f843ba?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+    category: "accessories",
+    stock: 20
+  },
+  {
+    id: 15,
+    name: "Smart Watch",
+    description: "Feature-rich smart watch with health tracking",
+    price: 229.99,
+    image: "https://images.unsplash.com/photo-1617043786394-f977fa12eddf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+    category: "electronics",
+    stock: 10
+  },
+  {
+    id: 16,
+    name: "Denim Jacket",
+    description: "Classic denim jacket with modern fit",
+    price: 79.99,
+    image: "https://images.unsplash.com/photo-1551537482-f2075a1d41f2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+    category: "clothing",
+    stock: 15
   }
 ];
 
