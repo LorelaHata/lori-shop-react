@@ -29,7 +29,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="text-xl font-bold">
-          Euro<span className="text-primary">Shop</span>
+          Lori<span className="text-[#c4a484]">Shop</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -44,14 +44,14 @@ const Navbar = () => {
 
         {/* Desktop Right Actions */}
         <div className="hidden md:flex items-center space-x-4">
-          <button className="p-2 hover:bg-gray-100 rounded-full" aria-label="Search">
+          <button className="p-2 hover:bg-[#f5f2eb] rounded-full" aria-label="Search">
             <Search size={20} />
           </button>
           
-          <Link to="/cart" className="p-2 hover:bg-gray-100 rounded-full relative">
+          <Link to="/cart" className="p-2 hover:bg-[#f5f2eb] rounded-full relative">
             <ShoppingCart size={20} />
             {getCartCount() > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-[#c4a484] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 {getCartCount()}
               </span>
             )}
@@ -89,10 +89,10 @@ const Navbar = () => {
 
         {/* Mobile Menu Button */}
         <div className="flex md:hidden items-center gap-4">
-          <Link to="/cart" className="p-2 hover:bg-gray-100 rounded-full relative">
+          <Link to="/cart" className="p-2 hover:bg-[#f5f2eb] rounded-full relative">
             <ShoppingCart size={20} />
             {getCartCount() > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-[#c4a484] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 {getCartCount()}
               </span>
             )}
@@ -100,7 +100,7 @@ const Navbar = () => {
           
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)} 
-            className="p-2 hover:bg-gray-100 rounded-full"
+            className="p-2 hover:bg-[#f5f2eb] rounded-full"
           >
             <Menu size={24} />
           </button>
