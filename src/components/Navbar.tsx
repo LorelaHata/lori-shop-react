@@ -28,8 +28,8 @@ const Navbar = () => {
     <header className="bg-white shadow-sm sticky top-0 z-10">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         {/* Logo */}
-        <Link to="/" className="text-xl font-bold">
-          <span className="text-[#8B4513]">Lori</span><span className="text-[#c4a484]">Shop</span>
+        <Link to="/" className="text-xl font-bold text-black">
+          LoriShop
         </Link>
 
         {/* Desktop Navigation */}

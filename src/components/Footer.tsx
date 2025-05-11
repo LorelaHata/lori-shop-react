@@ -9,7 +9,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="font-bold text-lg mb-4"><span className="text-[#8B4513]">Lori</span><span className="text-[#c4a484]">Shop</span></h3>
+            <h3 className="font-bold text-black text-lg mb-4">LoriShop</h3>
             <p className="text-muted-foreground">
               Simple yet elegant online shopping experience with the best products at competitive prices.
             </p>
@@ -36,7 +36,7 @@ const Footer = () => {
               <p>Rruga Barrikadave</p>
               <p>Tirana, Albania</p>
               <p className="mt-2">lorishop@gmail.com</p>
-              <p>www.lorishop.al</p>
+              <p>lorishop.al</p>
               <p>+355 69 123 4567</p>
             </address>
           </div>
