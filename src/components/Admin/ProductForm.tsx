@@ -18,7 +18,7 @@ import {
 
 type ProductFormProps = {
   product?: Product;
-  onSubmit: (product: Omit<Product, "id">) => void;
+  onSubmit: (product: Omit<Product, "id"> | Product) => void;
 };
 
 const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
@@ -49,8 +49,10 @@ const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
     };
 
     if (product) {
+      // When editing, pass the complete Product with id
       onSubmit({ ...formattedData, id: product.id });
     } else {
+      // When adding, pass just the data without id
       onSubmit(formattedData);
     }
   };
@@ -149,23 +151,23 @@ const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
                 <Input placeholder="Enter image URL" {...field} />
               </FormControl>
               <FormMessage />
+              
+              {field.value && (
+                <div className="mt-2">
+                  <p className="text-sm mb-2">Preview:</p>
+                  <img
+                    src={field.value}
+                    alt="Product preview"
+                    className="w-32 h-32 object-cover rounded border"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://placehold.co/600x400?text=Preview";
+                    }}
+                  />
+                </div>
+              )}
             </FormItem>
           )}
         />
-
-        {field.value && (
-          <div className="mt-2">
-            <p className="text-sm mb-2">Preview:</p>
-            <img
-              src={field.value}
-              alt="Product preview"
-              className="w-32 h-32 object-cover rounded border"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "https://placehold.co/600x400?text=Preview";
-              }}
-            />
-          </div>
-        )}
 
         <div className="flex justify-end gap-2 pt-4">
           <DialogClose asChild>
