@@ -1,14 +1,29 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { products } from "../../data/products";
-import { ArrowLeft } from "lucide-react";
+import { products as initialProducts, Product } from "../../data/products";
+import { ArrowLeft, Plus, Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
+import ProductForm from "../../components/Admin/ProductForm";
 
 const Products = () => {
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     // Check if user is admin, otherwise redirect
@@ -16,6 +31,41 @@ const Products = () => {
       navigate("/");
     }
   }, [isAdmin, navigate]);
+
+  const handleAddProduct = (newProduct: Omit<Product, "id">) => {
+    const id = Math.max(0, ...products.map(p => p.id)) + 1;
+    const productToAdd = { ...newProduct, id };
+    
+    setProducts([...products, productToAdd]);
+    setIsAddDialogOpen(false);
+    toast.success("Product added successfully");
+  };
+
+  const handleEditProduct = (updatedProduct: Product) => {
+    setProducts(products.map(p => 
+      p.id === updatedProduct.id ? updatedProduct : p
+    ));
+    setIsEditDialogOpen(false);
+    toast.success("Product updated successfully");
+  };
+
+  const handleDeleteProduct = () => {
+    if (currentProduct) {
+      setProducts(products.filter(p => p.id !== currentProduct.id));
+      setIsDeleteDialogOpen(false);
+      toast.success("Product deleted successfully");
+    }
+  };
+
+  const openEditDialog = (product: Product) => {
+    setCurrentProduct(product);
+    setIsEditDialogOpen(true);
+  };
+
+  const openDeleteDialog = (product: Product) => {
+    setCurrentProduct(product);
+    setIsDeleteDialogOpen(true);
+  };
 
   if (!isAdmin()) {
     return null; // Will redirect in useEffect
@@ -30,7 +80,9 @@ const Products = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <h1 className="text-3xl font-bold">Manage Products</h1>
         
-        <Button>Add New Product</Button>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
+          <Plus size={16} className="mr-1" /> Add New Product
+        </Button>
       </div>
       
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -69,9 +121,20 @@ const Products = () => {
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex space-x-2">
-                      <Button size="sm" variant="outline">Edit</Button>
-                      <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700 hover:bg-red-50">
-                        Delete
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => openEditDialog(product)}
+                      >
+                        <Pencil size={14} className="mr-1" /> Edit
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => openDeleteDialog(product)}
+                      >
+                        <Trash2 size={14} className="mr-1" /> Delete
                       </Button>
                     </div>
                   </td>
@@ -81,6 +144,54 @@ const Products = () => {
           </table>
         </div>
       </div>
+
+      {/* Add Product Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add New Product</DialogTitle>
+          </DialogHeader>
+          <ProductForm onSubmit={handleAddProduct} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Product Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Product</DialogTitle>
+          </DialogHeader>
+          {currentProduct && (
+            <ProductForm 
+              product={currentProduct} 
+              onSubmit={handleEditProduct} 
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+          <p className="py-4">
+            Are you sure you want to delete "{currentProduct?.name}"? This action cannot be undone.
+          </p>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteProduct}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
