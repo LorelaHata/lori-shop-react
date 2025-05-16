@@ -18,7 +18,8 @@ import {
 
 type ProductFormProps = {
   product?: Product;
-  onSubmit: (product: Omit<Product, "id"> | Product) => void;
+  // Update the type to include both forms of data that can be submitted
+  onSubmit: (data: Omit<Product, "id"> | (Omit<Product, "id"> & { id: number })) => void;
 };
 
 const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
@@ -50,7 +51,8 @@ const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
 
     if (product) {
       // When editing, pass the complete Product with id
-      onSubmit({ ...formattedData, id: product.id });
+      // Cast the result to avoid TypeScript errors
+      onSubmit({ ...formattedData, id: product.id } as Omit<Product, "id"> & { id: number });
     } else {
       // When adding, pass just the data without id
       onSubmit(formattedData);
