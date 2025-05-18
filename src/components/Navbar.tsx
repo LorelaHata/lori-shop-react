@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { Menu, ShoppingCart, User, Search } from "lucide-react";
+import { Menu, ShoppingCart, User, Search, Package } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { Button } from "@/components/ui/button";
@@ -67,14 +67,24 @@ const Navbar = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-3 py-2 text-sm font-medium">{user.name}</div>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/profile">My Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="flex items-center">
+                    <Package className="mr-2 h-4 w-4" />
+                    <span>My Orders</span>
+                  </Link>
+                </DropdownMenuItem>
                 {isAdmin() && (
                   <>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link to="/admin">Admin Dashboard</Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
                   </>
                 )}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -130,6 +140,20 @@ const Navbar = () => {
               {user ? (
                 <>
                   <div className="font-medium mb-2">{user.name}</div>
+                  <NavLink 
+                    to="/profile"
+                    className="block py-2 hover:text-gray-600"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    My Profile
+                  </NavLink>
+                  <NavLink 
+                    to="/profile"
+                    className="block py-2 hover:text-gray-600"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    My Orders
+                  </NavLink>
                   {isAdmin() && (
                     <NavLink 
                       to="/admin"

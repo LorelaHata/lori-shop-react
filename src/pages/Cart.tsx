@@ -4,13 +4,18 @@ import ShoppingCart from "../components/ShoppingCart";
 import { useCart } from "../contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useAuth } from "../contexts/AuthContext";
 
 const Cart = () => {
   const { items, clearCart } = useCart();
+  const { isAuthenticated } = useAuth();
 
   const handleCheckout = () => {
-    clearCart();
-    toast.success("Order placed successfully!");
+    if (!isAuthenticated()) {
+      toast.error("Please sign in to proceed to checkout");
+      return;
+    }
+    // Navigation to checkout is done via the Link component
   };
 
   return (
@@ -43,9 +48,19 @@ const Cart = () => {
               </div>
               
               <div className="space-y-2">
-                <Button onClick={handleCheckout} className="w-full">
-                  Checkout
-                </Button>
+                {isAuthenticated() ? (
+                  <Button asChild className="w-full">
+                    <Link to="/checkout" onClick={handleCheckout}>
+                      Proceed to Checkout
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button asChild className="w-full">
+                    <Link to="/login" state={{ from: "/checkout" }}>
+                      Sign In to Checkout
+                    </Link>
+                  </Button>
+                )}
                 <Button asChild variant="outline" className="w-full">
                   <Link to="/shop">Continue Shopping</Link>
                 </Button>
