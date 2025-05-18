@@ -1,15 +1,19 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import StatusBadge from "../components/StatusBadge";
 import { useAuth } from "../contexts/AuthContext";
+import { useProfile } from "../contexts/ProfileContext";
+import ProfileForm from "../components/profile/ProfileForm";
+import AddressForm from "../components/profile/AddressForm";
+import PaymentMethodForm from "../components/profile/PaymentMethodForm";
+import { Address } from "../types/order";
+import { PaymentMethod } from "../types/payment";
+import { CreditCard, MapPin, UserRound, PackageOpen } from "lucide-react";
 
-// Mock data
+// Mock data for orders
 interface Order {
   id: string;
   date: string;
@@ -22,25 +26,6 @@ interface Order {
     quantity: number;
     image: string;
   }[];
-}
-
-interface Address {
-  id: string;
-  name: string;
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  isDefault: boolean;
-}
-
-interface PaymentMethod {
-  id: string;
-  cardNumber: string;
-  cardHolder: string;
-  expiryDate: string;
-  isDefault: boolean;
 }
 
 const mockOrders: Order[] = [
@@ -128,60 +113,91 @@ const mockOrders: Order[] = [
   }
 ];
 
-const mockAddresses: Address[] = [
-  {
-    id: "1",
-    name: "Home",
-    street: "123 Main St",
-    city: "New York",
-    state: "NY",
-    zipCode: "10001",
-    country: "United States",
-    isDefault: true,
-  },
-  {
-    id: "2",
-    name: "Work",
-    street: "456 Business Ave",
-    city: "San Francisco",
-    state: "CA",
-    zipCode: "94105",
-    country: "United States",
-    isDefault: false,
-  },
-];
-
-const mockPaymentMethods: PaymentMethod[] = [
-  {
-    id: "1",
-    cardNumber: "**** **** **** 4242",
-    cardHolder: "John Doe",
-    expiryDate: "12/24",
-    isDefault: true,
-  },
-  {
-    id: "2",
-    cardNumber: "**** **** **** 5555",
-    cardHolder: "John Doe",
-    expiryDate: "10/25",
-    isDefault: false,
-  },
-];
-
 const Profile = () => {
   const { user } = useAuth();
+  const { addresses, paymentMethods, setDefaultAddress, setDefaultPaymentMethod, deleteAddress, deletePaymentMethod } = useProfile();
   const [activeTab, setActiveTab] = useState("orders");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    phone: "555-123-4567",
-  });
+  const [isAddingAddress, setIsAddingAddress] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | undefined>(undefined);
+  const [isAddingPaymentMethod, setIsAddingPaymentMethod] = useState(false);
+  const [editingPaymentMethod, setEditingPaymentMethod] = useState<PaymentMethod | undefined>(undefined);
 
-  const handleUpdateProfile = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsEditingProfile(false);
-    // In a real app, this would update the user's profile via an API call
+  const startAddingAddress = () => {
+    setEditingAddress(undefined);
+    setIsAddingAddress(true);
+  };
+
+  const startEditingAddress = (address: Address) => {
+    setEditingAddress(address);
+    setIsAddingAddress(true);
+  };
+
+  const startAddingPaymentMethod = () => {
+    setEditingPaymentMethod(undefined);
+    setIsAddingPaymentMethod(true);
+  };
+
+  const startEditingPaymentMethod = (method: PaymentMethod) => {
+    setEditingPaymentMethod(method);
+    setIsAddingPaymentMethod(true);
+  };
+
+  const renderPaymentMethodDetails = (method: PaymentMethod) => {
+    switch (method.type) {
+      case "credit_card":
+        return (
+          <>
+            <div className="font-medium">
+              {method.cardNumber}{" "}
+              {method.isDefault && (
+                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2">
+                  Default
+                </span>
+              )}
+            </div>
+            <div className="text-sm text-gray-500 mt-1">
+              {method.cardHolder}
+              <br />
+              Expires {method.expiryDate}
+            </div>
+          </>
+        );
+      case "paypal":
+        return (
+          <>
+            <div className="font-medium">
+              PayPal{" "}
+              {method.isDefault && (
+                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2">
+                  Default
+                </span>
+              )}
+            </div>
+            <div className="text-sm text-gray-500 mt-1">
+              {method.accountEmail}
+            </div>
+          </>
+        );
+      case "bank_transfer":
+        return (
+          <>
+            <div className="font-medium">
+              Bank Transfer{" "}
+              {method.isDefault && (
+                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2">
+                  Default
+                </span>
+              )}
+            </div>
+            <div className="text-sm text-gray-500 mt-1">
+              {method.bankName}
+              <br />
+              Account: {method.accountNumber}
+            </div>
+          </>
+        );
+    }
   };
 
   return (
@@ -205,43 +221,47 @@ const Profile = () => {
 
             <nav className="space-y-2">
               <button
-                className={`w-full text-left px-4 py-2 rounded-lg ${
+                className={`w-full text-left px-4 py-2 rounded-lg flex items-center gap-2 ${
                   activeTab === "orders"
                     ? "bg-gray-100 font-medium"
                     : "hover:bg-gray-50"
                 }`}
                 onClick={() => setActiveTab("orders")}
               >
+                <PackageOpen className="h-4 w-4" />
                 Orders
               </button>
               <button
-                className={`w-full text-left px-4 py-2 rounded-lg ${
+                className={`w-full text-left px-4 py-2 rounded-lg flex items-center gap-2 ${
                   activeTab === "addresses"
                     ? "bg-gray-100 font-medium"
                     : "hover:bg-gray-50"
                 }`}
                 onClick={() => setActiveTab("addresses")}
               >
+                <MapPin className="h-4 w-4" />
                 Addresses
               </button>
               <button
-                className={`w-full text-left px-4 py-2 rounded-lg ${
+                className={`w-full text-left px-4 py-2 rounded-lg flex items-center gap-2 ${
                   activeTab === "payments"
                     ? "bg-gray-100 font-medium"
                     : "hover:bg-gray-50"
                 }`}
                 onClick={() => setActiveTab("payments")}
               >
+                <CreditCard className="h-4 w-4" />
                 Payment Methods
               </button>
               <button
-                className={`w-full text-left px-4 py-2 rounded-lg ${
+                className={`w-full text-left px-4 py-2 rounded-lg flex items-center gap-2 ${
                   activeTab === "account"
                     ? "bg-gray-100 font-medium"
                     : "hover:bg-gray-50"
                 }`}
                 onClick={() => setActiveTab("account")}
               >
+                <UserRound className="h-4 w-4" />
                 Account Details
               </button>
             </nav>
@@ -329,47 +349,72 @@ const Profile = () => {
                 <CardTitle>My Addresses</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {mockAddresses.map((address) => (
-                    <div
-                      key={address.id}
-                      className="border rounded-lg p-4 hover:shadow-sm transition-shadow"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="font-medium">
-                            {address.name}{" "}
-                            {address.isDefault && (
-                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2">
-                                Default
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-sm text-gray-500 mt-1">
-                            {address.street}
-                            <br />
-                            {address.city}, {address.state} {address.zipCode}
-                            <br />
-                            {address.country}
+                {isAddingAddress ? (
+                  <AddressForm 
+                    address={editingAddress} 
+                    onCancel={() => {
+                      setIsAddingAddress(false);
+                      setEditingAddress(undefined);
+                    }} 
+                  />
+                ) : (
+                  <>
+                    <div className="space-y-4">
+                      {addresses.map((address) => (
+                        <div
+                          key={address.id}
+                          className="border rounded-lg p-4 hover:shadow-sm transition-shadow"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="font-medium">
+                                {address.name}{" "}
+                                {address.isDefault && (
+                                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2">
+                                    Default
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-sm text-gray-500 mt-1">
+                                {address.street}
+                                <br />
+                                {address.city}, {address.state} {address.zipCode}
+                                <br />
+                                {address.country}
+                              </div>
+                            </div>
+                            <div className="space-x-2">
+                              <Button size="sm" variant="ghost" onClick={() => startEditingAddress(address)}>
+                                Edit
+                              </Button>
+                              {!address.isDefault && (
+                                <>
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost" 
+                                    onClick={() => setDefaultAddress(address.id)}
+                                  >
+                                    Set Default
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost"
+                                    onClick={() => deleteAddress(address.id)}
+                                  >
+                                    Delete
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <div className="space-x-2">
-                          <Button size="sm" variant="ghost">
-                            Edit
-                          </Button>
-                          {!address.isDefault && (
-                            <Button size="sm" variant="ghost">
-                              Delete
-                            </Button>
-                          )}
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                <Button variant="outline" className="mt-6">
-                  Add New Address
-                </Button>
+                    <Button variant="outline" className="mt-6" onClick={startAddingAddress}>
+                      Add New Address
+                    </Button>
+                  </>
+                )}
               </CardContent>
             </Card>
           )}
@@ -381,45 +426,58 @@ const Profile = () => {
                 <CardTitle>Payment Methods</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {mockPaymentMethods.map((payment) => (
-                    <div
-                      key={payment.id}
-                      className="border rounded-lg p-4 hover:shadow-sm transition-shadow"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="font-medium">
-                            {payment.cardNumber}{" "}
-                            {payment.isDefault && (
-                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2">
-                                Default
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-sm text-gray-500 mt-1">
-                            {payment.cardHolder}
-                            <br />
-                            Expires {payment.expiryDate}
+                {isAddingPaymentMethod ? (
+                  <PaymentMethodForm 
+                    paymentMethod={editingPaymentMethod} 
+                    onCancel={() => {
+                      setIsAddingPaymentMethod(false);
+                      setEditingPaymentMethod(undefined);
+                    }} 
+                  />
+                ) : (
+                  <>
+                    <div className="space-y-4">
+                      {paymentMethods.map((method) => (
+                        <div
+                          key={method.id}
+                          className="border rounded-lg p-4 hover:shadow-sm transition-shadow"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              {renderPaymentMethodDetails(method)}
+                            </div>
+                            <div className="space-x-2">
+                              <Button size="sm" variant="ghost" onClick={() => startEditingPaymentMethod(method)}>
+                                Edit
+                              </Button>
+                              {!method.isDefault && (
+                                <>
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost" 
+                                    onClick={() => setDefaultPaymentMethod(method.id)}
+                                  >
+                                    Set Default
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost"
+                                    onClick={() => deletePaymentMethod(method.id)}
+                                  >
+                                    Delete
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <div className="space-x-2">
-                          <Button size="sm" variant="ghost">
-                            Edit
-                          </Button>
-                          {!payment.isDefault && (
-                            <Button size="sm" variant="ghost">
-                              Delete
-                            </Button>
-                          )}
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                <Button variant="outline" className="mt-6">
-                  Add New Payment Method
-                </Button>
+                    <Button variant="outline" className="mt-6" onClick={startAddingPaymentMethod}>
+                      Add New Payment Method
+                    </Button>
+                  </>
+                )}
               </CardContent>
             </Card>
           )}
@@ -432,49 +490,7 @@ const Profile = () => {
               </CardHeader>
               <CardContent>
                 {isEditingProfile ? (
-                  <form onSubmit={handleUpdateProfile} className="space-y-4">
-                    <div>
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input
-                        id="name"
-                        value={profileData.name}
-                        onChange={(e) =>
-                          setProfileData({ ...profileData, name: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={profileData.email}
-                        onChange={(e) =>
-                          setProfileData({ ...profileData, email: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input
-                        id="phone"
-                        value={profileData.phone}
-                        onChange={(e) =>
-                          setProfileData({ ...profileData, phone: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button type="submit">Save Changes</Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setIsEditingProfile(false)}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </form>
+                  <ProfileForm onCancel={() => setIsEditingProfile(false)} />
                 ) : (
                   <div>
                     <dl className="space-y-4">
@@ -482,19 +498,19 @@ const Profile = () => {
                         <dt className="text-sm font-medium text-gray-500">
                           Full Name
                         </dt>
-                        <dd className="mt-1">{profileData.name}</dd>
+                        <dd className="mt-1">{user?.name}</dd>
                       </div>
                       <div>
                         <dt className="text-sm font-medium text-gray-500">
                           Email
                         </dt>
-                        <dd className="mt-1">{profileData.email}</dd>
+                        <dd className="mt-1">{user?.email}</dd>
                       </div>
                       <div>
                         <dt className="text-sm font-medium text-gray-500">
                           Phone
                         </dt>
-                        <dd className="mt-1">{profileData.phone}</dd>
+                        <dd className="mt-1">{user?.phone || "Not provided"}</dd>
                       </div>
                     </dl>
                     <Button

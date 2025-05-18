@@ -1,133 +1,79 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
+import { useProfile } from "../contexts/ProfileContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-
-// Mock data
-interface Address {
-  id: string;
-  name: string;
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  isDefault: boolean;
-}
-
-interface PaymentMethod {
-  id: string;
-  cardNumber: string;
-  cardHolder: string;
-  expiryDate: string;
-  isDefault: boolean;
-}
-
-const mockAddresses: Address[] = [
-  {
-    id: "1",
-    name: "Home",
-    street: "123 Main St",
-    city: "New York",
-    state: "NY",
-    zipCode: "10001",
-    country: "United States",
-    isDefault: true,
-  },
-  {
-    id: "2",
-    name: "Work",
-    street: "456 Business Ave",
-    city: "San Francisco",
-    state: "CA",
-    zipCode: "94105",
-    country: "United States",
-    isDefault: false,
-  },
-];
-
-const mockPaymentMethods: PaymentMethod[] = [
-  {
-    id: "1",
-    cardNumber: "**** **** **** 4242",
-    cardHolder: "John Doe",
-    expiryDate: "12/24",
-    isDefault: true,
-  },
-  {
-    id: "2",
-    cardNumber: "**** **** **** 5555",
-    cardHolder: "John Doe",
-    expiryDate: "10/25",
-    isDefault: false,
-  },
-];
+import AddressForm from "../components/profile/AddressForm";
+import PaymentMethodForm from "../components/profile/PaymentMethodForm";
 
 const Checkout = () => {
   const { items, clearCart, getCartTotal } = useCart();
+  const { addresses, paymentMethods } = useProfile();
   const navigate = useNavigate();
   const [selectedAddress, setSelectedAddress] = useState<string>(
-    mockAddresses.find((addr) => addr.isDefault)?.id || ""
+    addresses.find((addr) => addr.isDefault)?.id || ""
   );
   const [selectedPayment, setSelectedPayment] = useState<string>(
-    mockPaymentMethods.find((payment) => payment.isDefault)?.id || ""
+    paymentMethods.find((payment) => payment.isDefault)?.id || ""
   );
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [isAddingPayment, setIsAddingPayment] = useState(false);
-  const [newAddress, setNewAddress] = useState<Address>({
-    id: "",
-    name: "",
-    street: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "",
-    isDefault: false,
-  });
-
-  const [newPayment, setNewPayment] = useState({
-    cardNumber: "",
-    cardHolder: "",
-    expiryDate: "",
-    cvv: "",
-    isDefault: false,
-  });
 
   const handleCheckout = () => {
+    if (!selectedAddress) {
+      toast.error("Please select a shipping address");
+      return;
+    }
+
+    if (!selectedPayment) {
+      toast.error("Please select a payment method");
+      return;
+    }
+
     // This would normally call an API to process the order
     toast.success("Order placed successfully!");
     clearCart();
     navigate("/profile");
   };
 
-  const handleAddAddress = () => {
-    // Validate that required fields are filled
-    if (!newAddress.name || !newAddress.street || !newAddress.city || !newAddress.state || !newAddress.zipCode) {
-      toast.error("Please fill in all required address fields.");
-      return;
+  const renderPaymentMethodDetails = (method: any) => {
+    switch (method.type) {
+      case "credit_card":
+        return (
+          <>
+            <div className="font-medium">{method.cardNumber}</div>
+            <div className="text-sm text-gray-500">
+              {method.cardHolder} • Expires {method.expiryDate}
+            </div>
+          </>
+        );
+      case "paypal":
+        return (
+          <>
+            <div className="font-medium">PayPal</div>
+            <div className="text-sm text-gray-500">
+              {method.accountEmail}
+            </div>
+          </>
+        );
+      case "bank_transfer":
+        return (
+          <>
+            <div className="font-medium">Bank Transfer</div>
+            <div className="text-sm text-gray-500">
+              {method.bankName} • {method.accountNumber}
+            </div>
+          </>
+        );
+      default:
+        return <div>Unknown payment method</div>;
     }
-    
-    // In a real app, this would call an API to add the address
-    setIsAddingAddress(false);
-    toast.success("New address added!");
-  };
-
-  const handleAddPayment = () => {
-    // Validate that required fields are filled
-    if (!newPayment.cardNumber || !newPayment.cardHolder || !newPayment.expiryDate || !newPayment.cvv) {
-      toast.error("Please fill in all required payment fields.");
-      return;
-    }
-    
-    // In a real app, this would call an API to add the payment method
-    setIsAddingPayment(false);
-    toast.success("New payment method added!");
   };
 
   if (items.length === 0) {
@@ -154,14 +100,18 @@ const Checkout = () => {
           <Card>
             <CardContent className="pt-6">
               <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
-              {!isAddingAddress ? (
+              {isAddingAddress ? (
+                <AddressForm
+                  onCancel={() => setIsAddingAddress(false)}
+                />
+              ) : (
                 <>
                   <RadioGroup
                     value={selectedAddress}
                     onValueChange={setSelectedAddress}
                     className="space-y-4"
                   >
-                    {mockAddresses.map((address) => (
+                    {addresses.map((address) => (
                       <div
                         key={address.id}
                         className="flex items-center space-x-2 border rounded-lg p-4"
@@ -195,99 +145,6 @@ const Checkout = () => {
                     Add New Address
                   </Button>
                 </>
-              ) : (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="address-name">Address Name</Label>
-                      <Input
-                        id="address-name"
-                        placeholder="Home, Work, etc."
-                        value={newAddress.name}
-                        onChange={(e) =>
-                          setNewAddress({ ...newAddress, name: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="country">Country</Label>
-                      <Input
-                        id="country"
-                        placeholder="Country"
-                        value={newAddress.country}
-                        onChange={(e) =>
-                          setNewAddress({ ...newAddress, country: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="street">Street Address</Label>
-                    <Input
-                      id="street"
-                      placeholder="Street address"
-                      value={newAddress.street}
-                      onChange={(e) =>
-                        setNewAddress({ ...newAddress, street: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="city">City</Label>
-                      <Input
-                        id="city"
-                        placeholder="City"
-                        value={newAddress.city}
-                        onChange={(e) =>
-                          setNewAddress({ ...newAddress, city: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="state">State</Label>
-                      <Input
-                        id="state"
-                        placeholder="State"
-                        value={newAddress.state}
-                        onChange={(e) =>
-                          setNewAddress({ ...newAddress, state: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="zip">Zip Code</Label>
-                      <Input
-                        id="zip"
-                        placeholder="Zip code"
-                        value={newAddress.zipCode}
-                        onChange={(e) =>
-                          setNewAddress({ ...newAddress, zipCode: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="default-address"
-                      checked={newAddress.isDefault}
-                      onChange={(e) =>
-                        setNewAddress({
-                          ...newAddress,
-                          isDefault: e.target.checked,
-                        })
-                      }
-                    />
-                    <Label htmlFor="default-address">Set as default address</Label>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button variant="outline" onClick={() => setIsAddingAddress(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleAddAddress}>Save Address</Button>
-                  </div>
-                </div>
               )}
             </CardContent>
           </Card>
@@ -296,14 +153,18 @@ const Checkout = () => {
           <Card>
             <CardContent className="pt-6">
               <h2 className="text-xl font-semibold mb-4">Payment Method</h2>
-              {!isAddingPayment ? (
+              {isAddingPayment ? (
+                <PaymentMethodForm
+                  onCancel={() => setIsAddingPayment(false)}
+                />
+              ) : (
                 <>
                   <RadioGroup
                     value={selectedPayment}
                     onValueChange={setSelectedPayment}
                     className="space-y-4"
                   >
-                    {mockPaymentMethods.map((payment) => (
+                    {paymentMethods.map((payment) => (
                       <div
                         key={payment.id}
                         className="flex items-center space-x-2 border rounded-lg p-4"
@@ -313,10 +174,7 @@ const Checkout = () => {
                           htmlFor={`payment-${payment.id}`}
                           className="flex-1 cursor-pointer"
                         >
-                          <div className="font-medium">{payment.cardNumber}</div>
-                          <div className="text-sm text-gray-500">
-                            {payment.cardHolder} • Expires {payment.expiryDate}
-                          </div>
+                          {renderPaymentMethodDetails(payment)}
                           {payment.isDefault && (
                             <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded mt-1 inline-block">
                               Default
@@ -334,82 +192,6 @@ const Checkout = () => {
                     Add New Payment Method
                   </Button>
                 </>
-              ) : (
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="card-number">Card Number</Label>
-                    <Input
-                      id="card-number"
-                      placeholder="1234 5678 9012 3456"
-                      value={newPayment.cardNumber}
-                      onChange={(e) =>
-                        setNewPayment({ ...newPayment, cardNumber: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="card-holder">Card Holder Name</Label>
-                    <Input
-                      id="card-holder"
-                      placeholder="John Doe"
-                      value={newPayment.cardHolder}
-                      onChange={(e) =>
-                        setNewPayment({ ...newPayment, cardHolder: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="expiry">Expiration Date</Label>
-                      <Input
-                        id="expiry"
-                        placeholder="MM/YY"
-                        value={newPayment.expiryDate}
-                        onChange={(e) =>
-                          setNewPayment({
-                            ...newPayment,
-                            expiryDate: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="cvv">CVV</Label>
-                      <Input
-                        id="cvv"
-                        placeholder="123"
-                        type="password"
-                        maxLength={4}
-                        value={newPayment.cvv}
-                        onChange={(e) =>
-                          setNewPayment({ ...newPayment, cvv: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="default-payment"
-                      checked={newPayment.isDefault}
-                      onChange={(e) =>
-                        setNewPayment({
-                          ...newPayment,
-                          isDefault: e.target.checked,
-                        })
-                      }
-                    />
-                    <Label htmlFor="default-payment">
-                      Set as default payment method
-                    </Label>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button variant="outline" onClick={() => setIsAddingPayment(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleAddPayment}>Save Payment Method</Button>
-                  </div>
-                </div>
               )}
             </CardContent>
           </Card>
@@ -446,7 +228,12 @@ const Checkout = () => {
                   <div>${getCartTotal().toFixed(2)}</div>
                 </div>
 
-                <Button className="w-full mt-4" size="lg" onClick={handleCheckout}>
+                <Button 
+                  className="w-full mt-4" 
+                  size="lg" 
+                  onClick={handleCheckout}
+                  disabled={!selectedAddress || !selectedPayment || isAddingAddress || isAddingPayment}
+                >
                   Place Order
                 </Button>
                 <p className="text-center text-xs text-gray-500 mt-2">

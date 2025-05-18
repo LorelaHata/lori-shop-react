@@ -7,6 +7,7 @@ export interface User {
   name: string;
   email: string;
   role: "consumer" | "admin";
+  phone?: string;
 }
 
 interface AuthContextType {
@@ -14,6 +15,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
+  updateUserProfile: (updatedUser: Partial<User>) => void;
   isAdmin: () => boolean;
   isAuthenticated: () => boolean;
 }
@@ -30,9 +32,10 @@ const users: User[] = [
   },
   {
     id: "2",
-    name: "Consumer User",
+    name: "Lorela",
     email: "user@example.com",
     role: "consumer",
+    phone: "555-123-4567"
   },
 ];
 
@@ -96,6 +99,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     toast.success("You have been logged out");
   };
 
+  const updateUserProfile = (updatedUser: Partial<User>) => {
+    if (user) {
+      const updated = { ...user, ...updatedUser };
+      setUser(updated);
+      localStorage.setItem("user", JSON.stringify(updated));
+      
+      // Update the user in our mock database
+      const index = users.findIndex(u => u.id === user.id);
+      if (index !== -1) {
+        users[index] = updated;
+      }
+      
+      toast.success("Profile updated successfully");
+    }
+  };
+
   const isAdmin = () => user?.role === "admin";
   
   const isAuthenticated = () => user !== null;
@@ -105,6 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     register,
     logout,
+    updateUserProfile,
     isAdmin,
     isAuthenticated,
   };
