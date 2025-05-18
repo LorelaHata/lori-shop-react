@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import ProductCard from "../components/ProductCard";
 import { products } from "../data/products";
 import { Euro } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
 const Index = () => {
   // Display only 4 featured products on the homepage
   const featuredProducts = products.slice(0, 4);
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="page-transition">
@@ -25,9 +27,11 @@ const Index = () => {
             <Button size="lg" className="bg-[#c4a484] hover:bg-[#b39273]" asChild>
               <Link to="/shop">Shop Now</Link>
             </Button>
-            <Button variant="outline" size="lg" className="border-[#c4a484] text-[#c4a484] hover:bg-[#f5f2eb]" asChild>
-              <Link to="/login">Sign In</Link>
-            </Button>
+            {!isAuthenticated() && (
+              <Button variant="outline" size="lg" className="border-[#c4a484] text-[#c4a484] hover:bg-[#f5f2eb]" asChild>
+                <Link to="/login">Sign In</Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>
