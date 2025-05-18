@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
@@ -71,7 +70,7 @@ const mockPaymentMethods: PaymentMethod[] = [
 ];
 
 const Checkout = () => {
-  const { cart, total, clearCart } = useCart();
+  const { items, clearCart, getCartTotal } = useCart();
   const navigate = useNavigate();
   const [selectedAddress, setSelectedAddress] = useState<string>(
     mockAddresses.find((addr) => addr.isDefault)?.id || ""
@@ -131,7 +130,7 @@ const Checkout = () => {
     toast.success("New payment method added!");
   };
 
-  if (cart.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Checkout</h1>
@@ -422,20 +421,20 @@ const Checkout = () => {
             <CardContent className="pt-6">
               <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
               <div className="space-y-4">
-                {cart.map((item) => (
+                {items.map((item) => (
                   <div key={item.id} className="flex justify-between">
                     <div>
                       <div className="font-medium">
-                        {item.product.name} × {item.quantity}
+                        {item.name} × {item.quantity}
                       </div>
                     </div>
-                    <div>${(item.product.price * item.quantity).toFixed(2)}</div>
+                    <div>${(item.price * item.quantity).toFixed(2)}</div>
                   </div>
                 ))}
                 <Separator />
                 <div className="flex justify-between font-medium">
                   <div>Subtotal</div>
-                  <div>${total.toFixed(2)}</div>
+                  <div>${getCartTotal().toFixed(2)}</div>
                 </div>
                 <div className="flex justify-between text-sm text-gray-500">
                   <div>Shipping</div>
@@ -444,7 +443,7 @@ const Checkout = () => {
                 <Separator />
                 <div className="flex justify-between font-bold text-lg">
                   <div>Total</div>
-                  <div>${total.toFixed(2)}</div>
+                  <div>${getCartTotal().toFixed(2)}</div>
                 </div>
 
                 <Button className="w-full mt-4" size="lg" onClick={handleCheckout}>
