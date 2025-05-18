@@ -5,6 +5,7 @@ import { Menu, ShoppingCart, User, Search, Package } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,9 +13,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { user, logout, isAdmin } = useAuth();
   const { getCartCount } = useCart();
   const navigate = useNavigate();
@@ -22,6 +31,15 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     navigate("/");
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
+      setIsSearchOpen(false);
+      setSearchQuery("");
+    }
   };
 
   return (
@@ -40,11 +58,18 @@ const Navbar = () => {
           <NavLink to="/shop" className="hover:text-gray-600 transition-colors">
             Shop
           </NavLink>
+          <NavLink to="/contact" className="hover:text-gray-600 transition-colors">
+            Contact
+          </NavLink>
         </nav>
 
         {/* Desktop Right Actions */}
         <div className="hidden md:flex items-center space-x-4">
-          <button className="p-2 hover:bg-[#f5f2eb] rounded-full" aria-label="Search">
+          <button 
+            className="p-2 hover:bg-[#f5f2eb] rounded-full" 
+            aria-label="Search"
+            onClick={() => setIsSearchOpen(true)}
+          >
             <Search size={20} />
           </button>
           
@@ -76,6 +101,9 @@ const Navbar = () => {
                     <span>My Orders</span>
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/refund-request">Request Refund</Link>
+                </DropdownMenuItem>
                 {isAdmin() && (
                   <>
                     <DropdownMenuSeparator />
@@ -99,6 +127,13 @@ const Navbar = () => {
 
         {/* Mobile Menu Button */}
         <div className="flex md:hidden items-center gap-4">
+          <button 
+            onClick={() => setIsSearchOpen(true)} 
+            className="p-2 hover:bg-[#f5f2eb] rounded-full"
+          >
+            <Search size={20} />
+          </button>
+          
           <Link to="/cart" className="p-2 hover:bg-[#f5f2eb] rounded-full relative">
             <ShoppingCart size={20} />
             {getCartCount() > 0 && (
@@ -135,6 +170,13 @@ const Navbar = () => {
             >
               Shop
             </NavLink>
+            <NavLink 
+              to="/contact"
+              className="block py-2 hover:text-gray-600"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Contact
+            </NavLink>
             
             <div className="pt-2 border-t">
               {user ? (
@@ -153,6 +195,13 @@ const Navbar = () => {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     My Orders
+                  </NavLink>
+                  <NavLink 
+                    to="/refund-request"
+                    className="block py-2 hover:text-gray-600"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Request Refund
                   </NavLink>
                   {isAdmin() && (
                     <NavLink 
@@ -186,6 +235,29 @@ const Navbar = () => {
           </div>
         </div>
       )}
+      
+      {/* Search Dialog */}
+      <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Search Products</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSearch} className="flex items-center space-x-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search..."
+                className="pl-9"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <Button type="submit">Search</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 };

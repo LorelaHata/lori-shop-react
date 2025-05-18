@@ -22,6 +22,8 @@ import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import OrderDetail from "./pages/OrderDetail";
 import Checkout from "./pages/Checkout";
+import Contact from "./pages/Contact";
+import RefundRequest from "./pages/RefundRequest";
 
 // Components
 import Navbar from "./components/Navbar";
@@ -50,6 +52,8 @@ const App = () => (
                   <Route path="/register" element={<Register />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/order/:id" element={<OrderDetail />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/refund-request" element={<RefundRequest />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/admin/products" element={<AdminProducts />} />
                   <Route path="*" element={<NotFound />} />
