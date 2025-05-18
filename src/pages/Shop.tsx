@@ -5,12 +5,17 @@ import { products, categories } from "../data/products";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
 const Shop = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialSearchQuery = searchParams.get("search") || "";
+
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [filteredProducts, setFilteredProducts] = useState(products);
   const [sortOption, setSortOption] = useState("default");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     let result = [...products];
@@ -41,6 +46,17 @@ const Shop = () => {
     
     setFilteredProducts(result);
   }, [selectedCategory, sortOption, searchQuery]);
+  
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Update URL with search param
+    if (searchQuery.trim()) {
+      setSearchParams({ search: searchQuery });
+    } else {
+      setSearchParams({});
+    }
+    setIsSearching(false);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 page-transition">
@@ -48,16 +64,32 @@ const Shop = () => {
 
       {/* Search bar */}
       <div className="mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search products..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+        <form onSubmit={handleSearch}>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+              onFocus={() => setIsSearching(true)}
+              onBlur={() => setTimeout(() => setIsSearching(false), 200)}
+            />
+            {isSearching && (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                <Button 
+                  type="submit" 
+                  size="sm" 
+                  variant="ghost" 
+                  className="h-7 px-2"
+                >
+                  Search
+                </Button>
+              </div>
+            )}
+          </div>
+        </form>
       </div>
 
       <div className="flex flex-col md:flex-row">
