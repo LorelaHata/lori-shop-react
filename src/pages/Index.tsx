@@ -15,23 +15,37 @@ const Index = () => {
     <div className="page-transition">
       {/* Hero Section */}
       <section className="bg-[#f5f2eb] py-20 px-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Elegant Shopping Experience
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Discover our curated collection of high-quality products.
-            Simple, elegant, extraordinary.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" className="bg-[#c4a484] hover:bg-[#b39273]" asChild>
-              <Link to="/shop">Shop Now</Link>
-            </Button>
-            {!isAuthenticated() && (
-              <Button variant="outline" size="lg" className="border-[#c4a484] text-[#c4a484] hover:bg-[#f5f2eb]" asChild>
-                <Link to="/login">Sign In</Link>
-              </Button>
-            )}
+        <div className="container mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            {/* Text content - now on the left */}
+            <div className="text-left md:w-1/2">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                Elegant Shopping Experience
+              </h1>
+              <p className="text-xl md:text-2xl text-muted-foreground mb-8">
+                Discover our curated collection of high-quality products.
+                Simple, elegant, extraordinary.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Button size="lg" className="bg-[#c4a484] hover:bg-[#b39273]" asChild>
+                  <Link to="/shop">Shop Now</Link>
+                </Button>
+                {!isAuthenticated() && (
+                  <Button variant="outline" size="lg" className="border-[#c4a484] text-[#c4a484] hover:bg-[#f5f2eb]" asChild>
+                    <Link to="/login">Sign In</Link>
+                  </Button>
+                )}
+              </div>
+            </div>
+            
+            {/* Image - now on the right */}
+            <div className="md:w-1/2">
+              <img 
+                src="/lovable-uploads/96c93a2c-5d28-4d24-adeb-f23388f33594.png" 
+                alt="Woman shopping with colorful shopping bags" 
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
+            </div>
           </div>
         </div>
       </section>
