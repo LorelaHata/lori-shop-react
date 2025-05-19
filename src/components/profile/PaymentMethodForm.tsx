@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PaymentMethod, PaymentMethodType } from "../../types/payment";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CreditCard, Wallet, Bank } from "lucide-react";
+import { CreditCard, Wallet, Building } from "lucide-react";
 
 interface PaymentMethodFormProps {
   paymentMethod?: PaymentMethod;
@@ -96,7 +96,7 @@ const PaymentMethodForm = ({ paymentMethod, onCancel }: PaymentMethodFormProps) 
                 <span className="hidden sm:inline">PayPal</span>
               </TabsTrigger>
               <TabsTrigger value="bank_transfer" className="flex items-center gap-2">
-                <Bank className="h-4 w-4" />
+                <Building className="h-4 w-4" />
                 <span className="hidden sm:inline">Bank Transfer</span>
               </TabsTrigger>
             </TabsList>
