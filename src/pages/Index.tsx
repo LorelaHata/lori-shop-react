@@ -27,7 +27,7 @@ const Index = () => {
         <div className="container mx-auto relative z-10">
           <div className="flex items-center h-full">
             {/* Text content directly on background */}
-            <div className="text-left md:w-1/2 p-8 text-white">
+            <div className="text-left md:w-1/2 p-8 text-black">
               <h1 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-md">
                 Elegant Shopping Experience
               </h1>
@@ -36,11 +36,11 @@ const Index = () => {
                 Simple, elegant, extraordinary.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button size="lg" className="bg-[#c4a484] hover:bg-[#b39273]" asChild>
+                <Button size="lg" className="bg-[#F97316] hover:bg-[#F97316]/90" asChild>
                   <Link to="/shop">Shop Now</Link>
                 </Button>
                 {!isAuthenticated() && (
-                  <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/20" asChild>
+                  <Button variant="outline" size="lg" className="border-black text-black hover:bg-black/10" asChild>
                     <Link to="/login">Sign In</Link>
                   </Button>
                 )}
