@@ -13,12 +13,21 @@ const Index = () => {
 
   return (
     <div className="page-transition">
-      {/* Hero Section */}
-      <section className="bg-[#f5f2eb] py-20 px-4">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            {/* Text content - now on the left */}
-            <div className="text-left md:w-1/2">
+      {/* Hero Section with Background Image */}
+      <section 
+        className="py-20 px-4 bg-cover bg-center relative" 
+        style={{ 
+          backgroundImage: "url('/lovable-uploads/96c93a2c-5d28-4d24-adeb-f23388f33594.png')",
+          minHeight: "600px"
+        }}
+      >
+        {/* Overlay for better text visibility */}
+        <div className="absolute inset-0 bg-black/20"></div>
+        
+        <div className="container mx-auto relative z-10">
+          <div className="flex items-center h-full">
+            {/* Text content in a container with semi-transparent background */}
+            <div className="text-left md:w-1/2 p-8 rounded-lg bg-white/90 shadow-lg">
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
                 Elegant Shopping Experience
               </h1>
@@ -36,15 +45,6 @@ const Index = () => {
                   </Button>
                 )}
               </div>
-            </div>
-            
-            {/* Image - now on the right */}
-            <div className="md:w-1/2">
-              <img 
-                src="/lovable-uploads/96c93a2c-5d28-4d24-adeb-f23388f33594.png" 
-                alt="Woman shopping with colorful shopping bags" 
-                className="w-full h-auto rounded-lg shadow-lg"
-              />
             </div>
           </div>
         </div>
