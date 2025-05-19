@@ -26,12 +26,12 @@ const Index = () => {
         
         <div className="container mx-auto relative z-10">
           <div className="flex items-center h-full">
-            {/* Text content in a container with semi-transparent background */}
-            <div className="text-left md:w-1/2 p-8 rounded-lg bg-white/90 shadow-lg">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+            {/* Text content directly on background */}
+            <div className="text-left md:w-1/2 p-8 text-white">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-md">
                 Elegant Shopping Experience
               </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground mb-8">
+              <p className="text-xl md:text-2xl mb-8 drop-shadow-md">
                 Discover our curated collection of high-quality products.
                 Simple, elegant, extraordinary.
               </p>
@@ -40,7 +40,7 @@ const Index = () => {
                   <Link to="/shop">Shop Now</Link>
                 </Button>
                 {!isAuthenticated() && (
-                  <Button variant="outline" size="lg" className="border-[#c4a484] text-[#c4a484] hover:bg-[#f5f2eb]" asChild>
+                  <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/20" asChild>
                     <Link to="/login">Sign In</Link>
                   </Button>
                 )}
