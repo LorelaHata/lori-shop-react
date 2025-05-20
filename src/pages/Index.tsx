@@ -50,20 +50,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Available Sizes Section */}
-      <section className="py-10 px-4 bg-[#f5f2eb]">
-        <div className="container mx-auto text-center">
-          <h2 className="text-2xl font-semibold mb-6">Available Sizes</h2>
-          <div className="flex flex-wrap justify-center gap-4">
-            {["XS", "S", "M", "L", "XL", "XXL", "XXXL"].map((size) => (
-              <div key={size} className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm hover:shadow-md transition-shadow">
-                <span className="font-medium">{size}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Features */}
       <section className="py-16 px-4 bg-[#f8f6f1]">
         <div className="container mx-auto">
