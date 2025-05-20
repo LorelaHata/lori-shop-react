@@ -25,6 +25,7 @@ import OrderDetail from "./pages/OrderDetail";
 import Checkout from "./pages/Checkout";
 import Contact from "./pages/Contact";
 import RefundRequest from "./pages/RefundRequest";
+import FAQ from "./pages/FAQ";
 
 // Components
 import Navbar from "./components/Navbar";
@@ -55,6 +56,7 @@ const App = () => (
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/order/:id" element={<OrderDetail />} />
                     <Route path="/contact" element={<Contact />} />
+                    <Route path="/faq" element={<FAQ />} />
                     <Route path="/refund-request" element={<RefundRequest />} />
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/admin/products" element={<AdminProducts />} />

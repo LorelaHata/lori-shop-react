@@ -44,7 +44,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-[#f8f6f1] text-foreground antialiased;
+    @apply bg-[#f5f0e5] text-foreground antialiased;
   }
 }
 
@@ -58,7 +58,7 @@
   }
   
   .card {
-    @apply bg-white rounded-lg border border-gray-100 overflow-hidden transition-shadow hover:shadow-md;
+    @apply bg-[#fcf9f2] rounded-lg border border-[#e9e2d0] overflow-hidden transition-shadow hover:shadow-md;
   }
   
   .badge {
@@ -81,4 +81,10 @@ a.active {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* Ensure navbar stays fixed at top */
+.navbar-fixed {
+  @apply sticky top-0 z-50 bg-[#f5f0e5] border-b border-[#e9e2d0];
+  backdrop-filter: blur(10px);
 }

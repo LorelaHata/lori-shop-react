@@ -4,6 +4,7 @@ import { Product } from "../data/products";
 import { useCart } from "../contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
@@ -11,10 +12,19 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const isClothing = product.category === "clothing";
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    if (isClothing) {
+      toast.info("Please select a size first", {
+        description: "Visit product page to select a size"
+      });
+      return;
+    }
+    
     addToCart(product);
   };
 
@@ -40,15 +50,28 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </div>
           
           <div className="mt-4">
-            <Button 
-              onClick={handleAddToCart} 
-              variant="outline"
-              className="w-full border-[#c4a484] text-[#c4a484] hover:bg-[#f5f2eb] hover:text-[#b39273]"
-              disabled={product.stock <= 0}
-            >
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              {product.stock > 0 ? "Add to cart" : "Out of stock"}
-            </Button>
+            {isClothing ? (
+              <Button 
+                asChild
+                variant="outline"
+                className="w-full border-[#c4a484] text-[#c4a484] hover:bg-[#f5f2eb] hover:text-[#b39273]"
+              >
+                <Link to={`/product/${product.id}`}>
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  Select Size
+                </Link>
+              </Button>
+            ) : (
+              <Button 
+                onClick={handleAddToCart} 
+                variant="outline"
+                className="w-full border-[#c4a484] text-[#c4a484] hover:bg-[#f5f2eb] hover:text-[#b39273]"
+                disabled={product.stock <= 0}
+              >
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                {product.stock > 0 ? "Add to cart" : "Out of stock"}
+              </Button>
+            )}
           </div>
         </div>
       </Link>

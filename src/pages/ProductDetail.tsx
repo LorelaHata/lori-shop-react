@@ -5,6 +5,17 @@ import { getProductById } from "../data/products";
 import { useCart } from "../contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Minus, Plus, ShoppingCart } from "lucide-react";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
+
+// Available sizes for clothing items
+const clothingSizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +23,9 @@ const ProductDetail = () => {
   const product = getProductById(parseInt(id || "0"));
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState<string>("");
+  
+  const isClothing = product?.category === "clothing";
 
   if (!product) {
     return (
@@ -33,6 +47,11 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
+    if (isClothing && !selectedSize) {
+      toast.error("Please select a size before adding to cart");
+      return;
+    }
+    
     addToCart(product, quantity);
   };
 
@@ -79,6 +98,24 @@ const ProductDetail = () => {
           
           {product.stock > 0 && (
             <div className="space-y-4">
+              {isClothing && (
+                <div className="mb-4">
+                  <span className="text-gray-700 block mb-2">Size:</span>
+                  <Select value={selectedSize} onValueChange={setSelectedSize}>
+                    <SelectTrigger className="w-full md:w-[200px]">
+                      <SelectValue placeholder="Select size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clothingSizes.map((size) => (
+                        <SelectItem key={size} value={size}>
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
               <div className="flex items-center">
                 <span className="text-gray-700 mr-4">Quantity:</span>
                 <div className="flex items-center border rounded-md">
