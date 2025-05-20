@@ -29,7 +29,15 @@ const formSchema = z.object({
   cv: z.instanceof(File).optional().nullable()
 });
 
+// Schema for the email dialog form
+const emailFormSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  message: z.string().min(10, { message: "Message must be at least 10 characters." })
+});
+
 type ContactFormValues = z.infer<typeof formSchema>;
+type EmailFormValues = z.infer<typeof emailFormSchema>;
 
 const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,6 +53,16 @@ const Contact = () => {
       experience: "",
       coverLetter: "",
       cv: null
+    }
+  });
+
+  // For the email dialog form
+  const emailForm = useForm<EmailFormValues>({
+    resolver: zodResolver(emailFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      message: ""
     }
   });
 
@@ -70,20 +88,6 @@ const Contact = () => {
     setSelectedFile(file);
     form.setValue("cv", file);
   };
-
-  // For the email dialog form
-  const emailForm = useForm({
-    resolver: zodResolver(z.object({
-      name: z.string().min(2),
-      email: z.string().email(),
-      message: z.string().min(10)
-    })),
-    defaultValues: {
-      name: "",
-      email: "",
-      message: ""
-    }
-  });
 
   const submitEmailForm = emailForm.handleSubmit((data) => {
     toast({
@@ -293,53 +297,64 @@ const Contact = () => {
             <DialogTitle>Send us an email</DialogTitle>
           </DialogHeader>
           
-          <form onSubmit={submitEmailForm} className="space-y-4 pt-4">
-            <div className="space-y-2">
-              <FormLabel htmlFor="email-name">Your Name</FormLabel>
-              <Input 
-                id="email-name" 
-                placeholder="John Doe" 
-                {...emailForm.register("name")} 
+          <Form {...emailForm}>
+            <form onSubmit={submitEmailForm} className="space-y-4 pt-4">
+              <FormField
+                control={emailForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Your Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {emailForm.formState.errors.name && (
-                <p className="text-sm text-red-500">{emailForm.formState.errors.name.message}</p>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <FormLabel htmlFor="email-address">Your Email</FormLabel>
-              <Input 
-                id="email-address" 
-                placeholder="john@example.com" 
-                {...emailForm.register("email")} 
+              
+              <FormField
+                control={emailForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Your Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="john@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {emailForm.formState.errors.email && (
-                <p className="text-sm text-red-500">{emailForm.formState.errors.email.message}</p>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <FormLabel htmlFor="email-message">Message</FormLabel>
-              <Textarea 
-                id="email-message" 
-                placeholder="How can we help you?" 
-                className="min-h-[120px]"
-                {...emailForm.register("message")} 
+              
+              <FormField
+                control={emailForm.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Message</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="How can we help you?" 
+                        className="min-h-[120px]"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {emailForm.formState.errors.message && (
-                <p className="text-sm text-red-500">{emailForm.formState.errors.message.message}</p>
-              )}
-            </div>
-            
-            <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => setIsEmailDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" className="bg-[#F97316] hover:bg-[#F97316]/90">
-                Send Email
-              </Button>
-            </div>
-          </form>
+              
+              <div className="flex justify-end gap-3">
+                <Button type="button" variant="outline" onClick={() => setIsEmailDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" className="bg-[#F97316] hover:bg-[#F97316]/90">
+                  Send Email
+                </Button>
+              </div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>
