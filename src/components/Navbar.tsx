@@ -43,7 +43,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-10">
+    <header className="bg-[#f8f6f1] shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="text-xl font-bold text-black">

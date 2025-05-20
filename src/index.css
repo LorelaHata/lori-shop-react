@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    --background: 36 33% 97%;
+    --background: 36 38% 95%;
     --foreground: 30 10% 10%;
 
     --card: 36 33% 97%;
@@ -44,7 +44,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-[#f8f6f1] text-foreground antialiased;
   }
 }
 
@@ -76,4 +76,9 @@ html, body {
 
 a.active {
   font-weight: 500;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
