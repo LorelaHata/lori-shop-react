@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { Menu, ShoppingCart, User, Search, Package } from "lucide-react";
+import { Menu, ShoppingCart, Search, Package, UserRound } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { Button } from "@/components/ui/button";
@@ -86,7 +86,7 @@ const Navbar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="p-2 rounded-full">
-                  <User size={20} />
+                  <UserRound size={20} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
