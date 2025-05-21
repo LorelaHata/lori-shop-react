@@ -54,7 +54,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
               <Button 
                 asChild
                 variant="outline"
-                className="w-full border-[#c4a484] text-[#c4a484] hover:bg-[#e9e2d0] hover:text-[#b39273]"
+                className="w-full border-yellow-400 text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800"
               >
                 <Link to={`/product/${product.id}`}>
                   <ShoppingCart className="mr-2 h-4 w-4" />
@@ -65,7 +65,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
               <Button 
                 onClick={handleAddToCart} 
                 variant="outline"
-                className="w-full border-[#c4a484] text-[#c4a484] hover:bg-[#e9e2d0] hover:text-[#b39273]"
+                className="w-full border-yellow-400 text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800"
                 disabled={product.stock <= 0}
               >
                 <ShoppingCart className="mr-2 h-4 w-4" />
