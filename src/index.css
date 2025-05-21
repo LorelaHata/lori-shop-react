@@ -1,5 +1,4 @@
 
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
 @tailwind base;
@@ -45,7 +44,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-[#f7f3ea] text-foreground antialiased;
+    @apply bg-[#f2edd8] text-foreground antialiased;
   }
 }
 
@@ -59,7 +58,7 @@
   }
   
   .card {
-    @apply bg-[#fcf9f2] rounded-lg border border-[#e9e2d0] overflow-hidden transition-shadow hover:shadow-md;
+    @apply bg-[#f8f4e5] rounded-lg border border-[#e9e2d0] overflow-hidden transition-shadow hover:shadow-md;
   }
   
   .badge {
@@ -86,7 +85,6 @@ a.active {
 
 /* Ensure navbar stays fixed at top */
 .navbar-fixed {
-  @apply sticky top-0 z-50 bg-[#f7f3ea] border-b border-[#e9e2d0];
+  @apply sticky top-0 z-50 bg-[#f2edd8] border-b border-[#e9e2d0];
   backdrop-filter: blur(10px);
 }
-

@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { products as initialProducts, Product } from "../../data/products";
+import { 
+  products as initialProducts, 
+  Product, 
+  addProduct, 
+  updateProduct, 
+  deleteProduct 
+} from "../../data/products";
 import { ArrowLeft, Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { 
@@ -33,15 +39,16 @@ const Products = () => {
   }, [isAdmin, navigate]);
 
   const handleAddProduct = (newProduct: Omit<Product, "id">) => {
-    const id = Math.max(0, ...products.map(p => p.id)) + 1;
-    const productToAdd = { ...newProduct, id };
-    
+    // Use the addProduct utility from data/products.ts to ensure global update
+    const productToAdd = addProduct(newProduct);
     setProducts([...products, productToAdd]);
     setIsAddDialogOpen(false);
     toast.success("Product added successfully");
   };
 
   const handleEditProduct = (updatedProduct: Product) => {
+    // Use the updateProduct utility from data/products.ts to ensure global update
+    updateProduct(updatedProduct);
     setProducts(products.map(p => 
       p.id === updatedProduct.id ? updatedProduct : p
     ));
@@ -51,9 +58,15 @@ const Products = () => {
 
   const handleDeleteProduct = () => {
     if (currentProduct) {
-      setProducts(products.filter(p => p.id !== currentProduct.id));
+      // Use the deleteProduct utility from data/products.ts to ensure global update
+      const deleted = deleteProduct(currentProduct.id);
+      if (deleted) {
+        setProducts(products.filter(p => p.id !== currentProduct.id));
+        toast.success("Product deleted successfully");
+      } else {
+        toast.error("Failed to delete product");
+      }
       setIsDeleteDialogOpen(false);
-      toast.success("Product deleted successfully");
     }
   };
 
@@ -85,11 +98,11 @@ const Products = () => {
         </Button>
       </div>
       
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-[#f8f4e5] rounded-lg shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-gray-50 border-b">
+              <tr className="bg-[#ece6d3] border-b">
                 <th className="py-3 px-4">Product</th>
                 <th className="py-3 px-4">Category</th>
                 <th className="py-3 px-4">Price</th>
@@ -147,7 +160,7 @@ const Products = () => {
 
       {/* Add Product Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-[#f8f4e5]">
           <DialogHeader>
             <DialogTitle>Add New Product</DialogTitle>
           </DialogHeader>
@@ -157,7 +170,7 @@ const Products = () => {
 
       {/* Edit Product Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-[#f8f4e5]">
           <DialogHeader>
             <DialogTitle>Edit Product</DialogTitle>
           </DialogHeader>
@@ -172,7 +185,7 @@ const Products = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="bg-[#f8f4e5]">
           <DialogHeader>
             <DialogTitle>Confirm Deletion</DialogTitle>
           </DialogHeader>
