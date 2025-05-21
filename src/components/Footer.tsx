@@ -5,7 +5,7 @@ const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-[#f5f2eb]">
+    <footer className="bg-[#e9e2d0]">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
@@ -42,7 +42,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t mt-8 pt-8 text-center text-muted-foreground">
+        <div className="border-t border-[#d8d0be] mt-8 pt-8 text-center text-muted-foreground">
           <p>© {year} LoriShop. All rights reserved.</p>
         </div>
       </div>
