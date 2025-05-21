@@ -118,7 +118,7 @@ const Navbar = () => {
             </DropdownMenu>
           ) : (
             <Link to="/login">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 border-yellow-500">
                 Sign In
               </Button>
             </Link>

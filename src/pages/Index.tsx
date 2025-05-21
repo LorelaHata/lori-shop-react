@@ -36,11 +36,11 @@ const Index = () => {
                 Simple, elegant, extraordinary.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button size="lg" className="bg-[#c4a484] hover:bg-[#b39273]" asChild>
+                <Button size="lg" className="bg-yellow-400 hover:bg-yellow-500 text-yellow-900" asChild>
                   <Link to="/shop">Shop Now</Link>
                 </Button>
                 {!isAuthenticated() && (
-                  <Button size="lg" className="bg-[#c4a484] hover:bg-[#b39273]" asChild>
+                  <Button size="lg" className="bg-yellow-400 hover:bg-yellow-500 text-yellow-900" asChild>
                     <Link to="/login">Sign In</Link>
                   </Button>
                 )}
