@@ -23,7 +23,7 @@ const UserDropdown = () => {
   if (!user) {
     return (
       <Link to="/login">
-        <Button variant="outline" size="sm" className="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 border-yellow-500">
+        <Button variant="outline" size="sm" className="bg-orange-500 hover:bg-orange-600 text-white border-orange-500">
           Sign In
         </Button>
       </Link>
