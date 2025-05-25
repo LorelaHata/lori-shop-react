@@ -1,4 +1,3 @@
-
 import { Link, useNavigate } from "react-router-dom";
 import { UserRound, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,8 +22,8 @@ const UserDropdown = () => {
   if (!user) {
     return (
       <Link to="/login">
-        <Button variant="outline" size="sm" className="bg-orange-500 hover:bg-orange-600 text-white border-orange-500">
-          Sign In
+        <Button variant="ghost" className="p-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white">
+          <UserRound size={20} />
         </Button>
       </Link>
     );
