@@ -32,7 +32,7 @@ const Index = () => {
               </h1>
               <p className="text-xl md:text-2xl mb-8 drop-shadow-md">
                 Discover our curated collection of high-quality products.
-                Simple, elegant, extraordinary.
+                Elegant shopping made easy — quality and value in every click.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white" asChild>
