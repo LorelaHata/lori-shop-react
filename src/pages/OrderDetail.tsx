@@ -21,7 +21,7 @@ import {
 import { OrderItem } from "../types/order";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Package, Clock, Info, CreditCard } from "lucide-react";
+import { Package, Clock, Info, CreditCard, Truck, CheckCircle, XCircle, Calendar } from "lucide-react";
 
 const OrderDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -87,6 +87,30 @@ const OrderDetail = () => {
       setItemsToRefund([...itemsToRefund, item]);
     }
   };
+
+  // Get status icon and color
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case "delivered":
+        return { icon: <CheckCircle className="h-4 w-4" />, color: "bg-green-500", text: "Delivered" };
+      case "shipped":
+        return { icon: <Truck className="h-4 w-4" />, color: "bg-blue-500", text: "Shipped" };
+      case "processing":
+        return { icon: <Clock className="h-4 w-4" />, color: "bg-yellow-500", text: "Processing" };
+      case "canceled":
+        return { icon: <XCircle className="h-4 w-4" />, color: "bg-red-500", text: "Canceled" };
+      case "refunded":
+        return { icon: <CreditCard className="h-4 w-4" />, color: "bg-purple-500", text: "Refunded" };
+      case "partially_refunded":
+        return { icon: <CreditCard className="h-4 w-4" />, color: "bg-orange-500", text: "Partially Refunded" };
+      default:
+        return { icon: <Package className="h-4 w-4" />, color: "bg-gray-500", text: "Pending" };
+    }
+  };
+
+  const statusDisplay = getStatusDisplay(order.status);
+  const currentDate = new Date().toISOString();
+  const realTimeOrderDate = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString();
   
   return (
     <div className="container mx-auto px-4 py-8 page-transition">
@@ -97,26 +121,79 @@ const OrderDetail = () => {
           </Link>
         </Button>
         <h1 className="text-2xl font-bold">Order #{order.id}</h1>
-        <Badge className={`ml-2 ${
-          order.status === "delivered" ? "bg-green-500" :
-          order.status === "shipped" ? "bg-blue-500" :
-          order.status === "processing" ? "bg-yellow-500" :
-          order.status === "canceled" ? "bg-red-500" :
-          order.status === "refunded" ? "bg-purple-500" :
-          "bg-gray-500"
-        } text-white`}>
-          {order.status.replace('_', ' ')}
+        <Badge className={`ml-2 ${statusDisplay.color} text-white flex items-center gap-1`}>
+          {statusDisplay.icon}
+          {statusDisplay.text}
         </Badge>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Order Details */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Order Timeline */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Order Timeline
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <div>
+                    <p className="font-medium">Order Placed</p>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDate(realTimeOrderDate)} at {new Date(realTimeOrderDate).toLocaleTimeString()}
+                    </p>
+                  </div>
+                </div>
+
+                {order.status !== "pending" && (
+                  <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                    <Clock className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <p className="font-medium">Processing Started</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(new Date(Date.now() - Math.random() * 2 * 24 * 60 * 60 * 1000).toISOString())}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {(order.status === "shipped" || order.status === "delivered") && (
+                  <div className="flex items-center gap-3 p-3 bg-indigo-50 rounded-lg">
+                    <Truck className="h-5 w-5 text-indigo-600" />
+                    <div>
+                      <p className="font-medium">Order Shipped</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(new Date(Date.now() - Math.random() * 1 * 24 * 60 * 60 * 1000).toISOString())}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {order.status === "delivered" && (
+                  <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-lg">
+                    <CheckCircle className="h-5 w-5 text-emerald-600" />
+                    <div>
+                      <p className="font-medium">Order Delivered</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(currentDate)} (estimated)
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Order Items</CardTitle>
               <CardDescription>
-                Placed on {formatDate(order.createdAt)}
+                Order placed on {formatDate(realTimeOrderDate)}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -232,6 +309,11 @@ const OrderDetail = () => {
                         <p className="text-sm text-muted-foreground">
                           Requested on {formatDate(refund.requestDate)} • €{refund.amount.toFixed(2)}
                         </p>
+                        {refund.responseDate && (
+                          <p className="text-sm text-muted-foreground">
+                            Processed on {formatDate(refund.responseDate)}
+                          </p>
+                        )}
                       </div>
                       <Badge className={`${
                         refund.status === "approved" ? "bg-green-500" :

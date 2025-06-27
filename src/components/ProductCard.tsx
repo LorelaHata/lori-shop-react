@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { Product } from "../data/products";
 import { useCart } from "../contexts/CartContext";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Eye } from "lucide-react";
 import { toast } from "sonner";
+import LazyImage from "./LazyImage";
+import QuickView from "./QuickView";
 
 interface ProductCardProps {
   product: Product;
@@ -29,22 +31,34 @@ const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <div className="card group bg-[#f8f4e5] border-[#e9e2d0]">
+    <div className="card group bg-[#f8f4e5] border-[#e9e2d0] relative">
       <Link to={`/product/${product.id}`} className="block">
         <div className="relative overflow-hidden">
-          <img 
-            src={product.image} 
-            alt={product.name} 
+          <LazyImage
+            src={product.image}
+            alt={product.name}
             className="w-full h-64 object-cover transition-transform group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all"></div>
+          
+          {/* Quick View Button */}
+          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+            <QuickView 
+              product={product} 
+              trigger={
+                <Button size="sm" variant="secondary" className="bg-white/90 hover:bg-white">
+                  <Eye className="h-4 w-4" />
+                </Button>
+              }
+            />
+          </div>
         </div>
         
         <div className="p-4">
           <div className="flex justify-between items-start">
             <div>
               <h3 className="font-medium text-lg">{product.name}</h3>
-              <p className="text-muted-foreground text-sm mt-1">{product.category}</p>
+              <p className="text-muted-foreground text-sm mt-1 capitalize">{product.category}</p>
             </div>
             <div className="font-semibold">€{product.price.toFixed(2)}</div>
           </div>

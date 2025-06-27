@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import ProductImageGallery from "../components/ProductImageGallery";
 
 // Available sizes for clothing items
 const clothingSizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
@@ -38,6 +39,9 @@ const ProductDetail = () => {
       </div>
     );
   }
+
+  // For demo, we'll use the same image multiple times to simulate gallery
+  const productImages = [product.image, product.image, product.image];
 
   const handleQuantityChange = (amount: number) => {
     const newQuantity = quantity + amount;
@@ -65,12 +69,11 @@ const ProductDetail = () => {
       </button>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Product Image */}
-        <div className="bg-white rounded-lg overflow-hidden">
-          <img 
-            src={product.image} 
-            alt={product.name} 
-            className="w-full h-auto object-cover"
+        {/* Product Images */}
+        <div>
+          <ProductImageGallery 
+            images={productImages} 
+            productName={product.name} 
           />
         </div>
         
