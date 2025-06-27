@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Product, subcategories } from "../../data/products";
@@ -36,7 +35,7 @@ const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
       description: "",
       price: 0,
       image: "",
-      category: categories.filter(cat => !cat.includes("all") && !cat.includes("-"))[0], // Default to first non-"all" category
+      category: categories.filter(cat => !cat.includes("all") && !cat.includes("-"))[0],
       subcategory: "",
       stock: 0,
     },
@@ -46,7 +45,6 @@ const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
   const isClothingCategory = selectedCategory === "clothing";
 
   const handleSubmit = (data: Omit<Product, "id">) => {
-    // Format data
     const formattedData = {
       ...data,
       price: Number(data.price),
@@ -55,10 +53,8 @@ const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
     };
 
     if (product) {
-      // When editing, pass the data and the product ID separately
       onSubmit(formattedData, product.id);
     } else {
-      // When adding, pass just the data
       onSubmit(formattedData);
     }
   };
@@ -153,13 +149,14 @@ const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
             name="subcategory"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Subcategory</FormLabel>
+                <FormLabel>Gender <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
                   <select
                     className="w-full h-10 rounded-md border border-input bg-background px-3 py-2"
                     {...field}
+                    required
                   >
-                    <option value="">Select subcategory</option>
+                    <option value="">Select gender</option>
                     {subcategories.clothing.map((subcategory) => (
                       <option key={subcategory} value={subcategory}>
                         {subcategory.charAt(0).toUpperCase() + subcategory.slice(1)}
