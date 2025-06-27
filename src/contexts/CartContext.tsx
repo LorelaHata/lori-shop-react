@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { Product } from "../types/product";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ interface CartContextType {
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
+  getCartCount: () => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -73,6 +75,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     return items.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
+  const getCartCount = () => {
+    return items.reduce((total, item) => total + item.quantity, 0);
+  };
+
   const value: CartContextType = {
     items,
     addToCart,
@@ -80,6 +86,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     updateQuantity,
     clearCart,
     getCartTotal,
+    getCartCount,
   };
 
   return (
