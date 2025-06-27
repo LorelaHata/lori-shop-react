@@ -12,13 +12,6 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
-import { 
   Form,
   FormControl,
   FormField,
@@ -31,7 +24,8 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
-import { Order, OrderStatus } from "../types/order";
+import { Order, OrderStatus, OrderItem } from "../types/order";
+import { Check } from "lucide-react";
 
 // Mock order data for the demo
 const mockOrders: Order[] = [
@@ -117,13 +111,19 @@ const mockOrders: Order[] = [
 ];
 
 const formSchema = z.object({
-  orderId: z.string({
-    required_error: "Please select an order.",
-  }),
   reason: z.string().min(10, {
     message: "Reason must be at least 10 characters.",
   }),
-  itemsToReturn: z.array(z.number()).optional()
+  selectedItems: z.array(z.object({
+    orderId: z.string(),
+    productId: z.number(),
+    name: z.string(),
+    price: z.number(),
+    quantity: z.number(),
+    image: z.string()
+  })).min(1, {
+    message: "Please select at least one item to refund."
+  })
 });
 
 type RefundFormValues = z.infer<typeof formSchema>;
@@ -157,20 +157,45 @@ const formatDate = (dateString: string) => {
 };
 
 const RefundRequest = () => {
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedItems, setSelectedItems] = useState<Array<OrderItem & { orderId: string }>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   
   const form = useForm<RefundFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      reason: ""
+      reason: "",
+      selectedItems: []
     }
   });
   
-  const handleOrderSelect = (orderId: string) => {
-    const order = mockOrders.find(o => o.id === orderId);
-    setSelectedOrder(order || null);
+  const handleItemSelect = (order: Order, item: OrderItem) => {
+    const itemWithOrderId = { ...item, orderId: order.id };
+    const isSelected = selectedItems.some(
+      selected => selected.orderId === order.id && selected.productId === item.productId
+    );
+    
+    if (isSelected) {
+      const newSelectedItems = selectedItems.filter(
+        selected => !(selected.orderId === order.id && selected.productId === item.productId)
+      );
+      setSelectedItems(newSelectedItems);
+      form.setValue("selectedItems", newSelectedItems);
+    } else {
+      const newSelectedItems = [...selectedItems, itemWithOrderId];
+      setSelectedItems(newSelectedItems);
+      form.setValue("selectedItems", newSelectedItems);
+    }
+  };
+  
+  const isItemSelected = (orderId: string, productId: number) => {
+    return selectedItems.some(
+      selected => selected.orderId === orderId && selected.productId === productId
+    );
+  };
+  
+  const getTotalRefundAmount = () => {
+    return selectedItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
   
   function onSubmit(data: RefundFormValues) {
@@ -181,7 +206,7 @@ const RefundRequest = () => {
       setIsSubmitting(false);
       toast({
         title: "Refund request submitted",
-        description: "Your refund request has been received. We'll review it shortly.",
+        description: `Your refund request for €${getTotalRefundAmount().toFixed(2)} has been received. We'll review it shortly.`,
       });
       navigate("/profile");
     }, 1500);
@@ -193,80 +218,98 @@ const RefundRequest = () => {
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-2">Request a Refund</h1>
       <p className="text-muted-foreground mb-8">
-        Please select an order and provide details for your refund request.
+        Click on the product images you want to refund and provide a reason for your request.
       </p>
       
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="orderId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Select Order</FormLabel>
-                  <FormControl>
-                    <Select 
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        handleOrderSelect(value);
-                      }}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select an order" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockOrders.map(order => (
-                          <SelectItem key={order.id} value={order.id}>
-                            Order #{order.id.slice(-6)} - {formatDate(order.createdAt)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            {selectedOrder && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex justify-between">
-                    <span>Order #{selectedOrder.id.slice(-6)}</span>
-                    <span>{getOrderStatusBadge(selectedOrder.status)}</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Placed on {formatDate(selectedOrder.createdAt)}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Items</h4>
-                      {selectedOrder.items.map((item, index) => (
-                        <div key={index} className="flex items-center py-2 border-b last:border-0">
-                          <div className="h-16 w-16 rounded overflow-hidden mr-4">
-                            <img 
-                              src={item.image} 
-                              alt={item.name} 
-                              className="h-full w-full object-cover"
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium">{item.name}</div>
-                            <div className="text-sm text-muted-foreground">
-                              Qty: {item.quantity} × €{item.price.toFixed(2)}
+            {/* Product Selection */}
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold">Select Items to Refund</h2>
+              {mockOrders.map(order => (
+                <Card key={order.id}>
+                  <CardHeader>
+                    <CardTitle className="flex justify-between items-center">
+                      <span>Order #{order.id.slice(-6)}</span>
+                      <span>{getOrderStatusBadge(order.status)}</span>
+                    </CardTitle>
+                    <CardDescription>
+                      Placed on {formatDate(order.createdAt)}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {order.items.map((item) => (
+                        <div
+                          key={`${order.id}-${item.productId}`}
+                          className={`relative cursor-pointer rounded-lg border-2 transition-all duration-200 hover:shadow-md ${
+                            isItemSelected(order.id, item.productId)
+                              ? 'border-primary bg-primary/5'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={() => handleItemSelect(order, item)}
+                        >
+                          <div className="p-4">
+                            <div className="relative mb-3">
+                              <img 
+                                src={item.image} 
+                                alt={item.name}
+                                className="w-full h-32 object-cover rounded-md"
+                              />
+                              {isItemSelected(order.id, item.productId) && (
+                                <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+                                  <Check className="h-4 w-4" />
+                                </div>
+                              )}
                             </div>
-                          </div>
-                          <div className="font-medium">
-                            €{(item.quantity * item.price).toFixed(2)}
+                            <div>
+                              <h4 className="font-medium text-sm mb-1">{item.name}</h4>
+                              <p className="text-sm text-muted-foreground mb-1">
+                                Qty: {item.quantity}
+                              </p>
+                              <p className="font-semibold text-sm">
+                                €{(item.price * item.quantity).toFixed(2)}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       ))}
                     </div>
-                    <div className="text-right font-semibold">
-                      Total: €{selectedOrder.total.toFixed(2)}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            {/* Selected Items Summary */}
+            {selectedItems.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Refund Summary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {selectedItems.map((item, index) => (
+                      <div key={index} className="flex justify-between items-center py-2 border-b last:border-0">
+                        <div className="flex items-center space-x-3">
+                          <img 
+                            src={item.image} 
+                            alt={item.name}
+                            className="w-12 h-12 object-cover rounded"
+                          />
+                          <div>
+                            <p className="font-medium text-sm">{item.name}</p>
+                            <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                          </div>
+                        </div>
+                        <div className="font-medium">
+                          €{(item.price * item.quantity).toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex justify-between items-center pt-2 font-semibold">
+                      <span>Total Refund Amount:</span>
+                      <span>€{getTotalRefundAmount().toFixed(2)}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -299,8 +342,8 @@ const RefundRequest = () => {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting || !selectedOrder}>
-                {isSubmitting ? "Submitting..." : "Submit Refund Request"}
+              <Button type="submit" disabled={isSubmitting || selectedItems.length === 0}>
+                {isSubmitting ? "Submitting..." : `Submit Refund Request (€${getTotalRefundAmount().toFixed(2)})`}
               </Button>
             </div>
           </form>
