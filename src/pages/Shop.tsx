@@ -3,7 +3,7 @@ import ProductCard from "../components/ProductCard";
 import { Product, categories } from "../data/products";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, ChevronDown, ChevronRight } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { fetchProducts } from "../services/productService";
 import { toast } from "sonner";
@@ -19,6 +19,7 @@ const Shop = () => {
   const [sortOption, setSortOption] = useState("default");
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [isSearching, setIsSearching] = useState(false);
+  const [showClothingSubcategories, setShowClothingSubcategories] = useState(false);
 
   useEffect(() => {
     loadProducts();
@@ -90,6 +91,19 @@ const Shop = () => {
     setIsSearching(false);
   };
 
+  const handleCategoryClick = (category: string) => {
+    if (category === "clothing") {
+      setShowClothingSubcategories(!showClothingSubcategories);
+      // If clicking clothing and it's already selected, keep it selected
+      if (selectedCategory !== "clothing") {
+        setSelectedCategory("clothing");
+      }
+    } else {
+      setSelectedCategory(category);
+      setShowClothingSubcategories(false);
+    }
+  };
+
   const getCategoryDisplayName = (category: string) => {
     switch (category) {
       case "clothing-male":
@@ -150,16 +164,40 @@ const Shop = () => {
         <div className="md:w-1/4 mb-6 md:mb-0 md:pr-4">
           <div className="bg-white p-4 rounded-lg shadow-sm">
             <h2 className="font-medium text-lg mb-3">Categories</h2>
-            <div className="space-y-2">
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "ghost"}
-                  className="justify-start w-full text-left"
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {getCategoryDisplayName(category)}
-                </Button>
+            <div className="space-y-1">
+              {categories.filter(cat => !cat.includes("-")).map((category) => (
+                <div key={category}>
+                  <Button
+                    variant={selectedCategory === category || (category === "clothing" && (selectedCategory === "clothing-male" || selectedCategory === "clothing-female")) ? "default" : "ghost"}
+                    className="justify-between w-full text-left"
+                    onClick={() => handleCategoryClick(category)}
+                  >
+                    <span>{getCategoryDisplayName(category)}</span>
+                    {category === "clothing" && (
+                      showClothingSubcategories ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
+                    )}
+                  </Button>
+                  
+                  {/* Clothing subcategories */}
+                  {category === "clothing" && showClothingSubcategories && (
+                    <div className="ml-4 mt-2 space-y-1">
+                      <Button
+                        variant={selectedCategory === "clothing-male" ? "default" : "ghost"}
+                        className="justify-start w-full text-left text-sm"
+                        onClick={() => setSelectedCategory("clothing-male")}
+                      >
+                        Male
+                      </Button>
+                      <Button
+                        variant={selectedCategory === "clothing-female" ? "default" : "ghost"}
+                        className="justify-start w-full text-left text-sm"
+                        onClick={() => setSelectedCategory("clothing-female")}
+                      >
+                        Female
+                      </Button>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
