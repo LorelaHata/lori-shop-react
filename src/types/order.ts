@@ -1,4 +1,5 @@
-import { Product } from "./product";
+
+import { Product } from "../data/products";
 
 export interface CartItem {
   id: number;

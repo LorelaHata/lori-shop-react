@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { getProductById } from "../data/products";
@@ -51,9 +52,7 @@ const ProductDetail = () => {
       return;
     }
     
-    for (let i = 0; i < quantity; i++) {
-      addToCart(product);
-    }
+    addToCart(product, quantity);
   };
 
   return (
