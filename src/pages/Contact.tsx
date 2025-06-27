@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Mail, MessageSquare, HelpCircle, Shield, Lock, CreditCard } from "lucide-react";
+import { Mail, MessageSquare, HelpCircle, Shield, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -91,56 +90,6 @@ const Contact = () => {
             <Button variant="outline" onClick={() => document.getElementById('faq')?.scrollIntoView({behavior: 'smooth'})}>
               View FAQ
             </Button>
-          </div>
-        </div>
-
-        {/* Secure Payment Methods */}
-        <div className="bg-white p-8 rounded-lg shadow-sm mb-12">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold mb-2">Secure Payment Methods</h2>
-            <p className="text-muted-foreground">We accept all major payment methods with bank-level security</p>
-          </div>
-          
-          <div className="flex flex-wrap justify-center items-center gap-6 mb-6">
-            <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
-              <CreditCard className="h-6 w-6 text-blue-600" />
-              <span className="font-medium">Visa</span>
-            </div>
-            <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
-              <CreditCard className="h-6 w-6 text-red-600" />
-              <span className="font-medium">Mastercard</span>
-            </div>
-            <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
-              <CreditCard className="h-6 w-6 text-blue-800" />
-              <span className="font-medium">American Express</span>
-            </div>
-            <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
-              <CreditCard className="h-6 w-6 text-blue-500" />
-              <span className="font-medium">PayPal</span>
-            </div>
-            <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
-              <CreditCard className="h-6 w-6 text-green-600" />
-              <span className="font-medium">Apple Pay</span>
-            </div>
-            <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
-              <CreditCard className="h-6 w-6 text-orange-600" />
-              <span className="font-medium">Google Pay</span>
-            </div>
-          </div>
-
-          <div className="flex justify-center items-center space-x-8 text-sm text-muted-foreground">
-            <div className="flex items-center space-x-2">
-              <Shield className="h-4 w-4 text-green-600" />
-              <span>SSL Encrypted</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Lock className="h-4 w-4 text-green-600" />
-              <span>PCI Compliant</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Shield className="h-4 w-4 text-green-600" />
-              <span>256-bit Security</span>
-            </div>
           </div>
         </div>
         
