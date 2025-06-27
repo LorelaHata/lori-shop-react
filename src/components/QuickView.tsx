@@ -7,7 +7,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Eye } from "lucide-react";
 import { toast } from "sonner";
-import ProductImageGallery from "./ProductImageGallery";
 
 interface QuickViewProps {
   product: Product;
@@ -20,9 +19,6 @@ const QuickView = ({ product, trigger }: QuickViewProps) => {
   const { addToCart } = useCart();
   
   const isClothing = product.category === "clothing";
-  
-  // For demo, we'll use the same image multiple times to simulate gallery
-  const productImages = [product.image, product.image, product.image];
 
   const handleAddToCart = () => {
     if (isClothing) {
@@ -52,12 +48,16 @@ const QuickView = ({ product, trigger }: QuickViewProps) => {
           </DialogHeader>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Product Images */}
+            {/* Product Image */}
             <div>
-              <ProductImageGallery 
-                images={productImages} 
-                productName={product.name} 
-              />
+              <div className="relative bg-white rounded-lg overflow-hidden">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-64 object-cover"
+                  loading="lazy"
+                />
+              </div>
             </div>
             
             {/* Product Details */}
