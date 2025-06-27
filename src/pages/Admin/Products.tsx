@@ -1,15 +1,9 @@
-
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { 
-  products as initialProducts, 
-  Product, 
-  addProduct, 
-  updateProduct, 
-  deleteProduct 
-} from "../../data/products";
+import { Product } from "../../data/products";
+import { productService } from "../../services/productService";
 import { ArrowLeft, Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { 
@@ -23,50 +17,80 @@ import {
 import ProductForm from "../../components/Admin/ProductForm";
 
 const Products = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, loading } = useAuth();
   const navigate = useNavigate();
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    // Check if user is admin, otherwise redirect
-    if (!isAdmin()) {
+    if (!loading && !isAdmin()) {
       navigate("/");
+      return;
     }
-  }, [isAdmin, navigate]);
+    
+    if (!loading) {
+      loadProducts();
+    }
+  }, [isAdmin, navigate, loading]);
 
-  const handleAddProduct = (newProduct: Omit<Product, "id">) => {
-    // Use the addProduct utility from data/products.ts to ensure global update
-    const productToAdd = addProduct(newProduct);
-    setProducts([...products, productToAdd]);
-    setIsAddDialogOpen(false);
-    toast.success("Product added successfully");
+  const loadProducts = async () => {
+    try {
+      setProductsLoading(true);
+      const data = await productService.getProducts();
+      setProducts(data);
+    } catch (error) {
+      console.error('Error loading products:', error);
+      toast.error("Failed to load products");
+    } finally {
+      setProductsLoading(false);
+    }
   };
 
-  const handleEditProduct = (updatedProduct: Product) => {
-    // Use the updateProduct utility from data/products.ts to ensure global update
-    updateProduct(updatedProduct);
-    setProducts(products.map(p => 
-      p.id === updatedProduct.id ? updatedProduct : p
-    ));
-    setIsEditDialogOpen(false);
-    toast.success("Product updated successfully");
+  const handleAddProduct = async (newProduct: Omit<Product, "id">) => {
+    try {
+      const addedProduct = await productService.addProduct(newProduct);
+      setProducts([addedProduct, ...products]);
+      setIsAddDialogOpen(false);
+      toast.success("Product added successfully");
+    } catch (error) {
+      console.error('Error adding product:', error);
+      toast.error("Failed to add product");
+    }
   };
 
-  const handleDeleteProduct = () => {
-    if (currentProduct) {
-      // Use the deleteProduct utility from data/products.ts to ensure global update
-      const deleted = deleteProduct(currentProduct.id);
-      if (deleted) {
+  const handleEditProduct = async (updatedProduct: Product) => {
+    try {
+      const result = await productService.updateProduct(updatedProduct);
+      setProducts(products.map(p => 
+        p.id === updatedProduct.id ? result : p
+      ));
+      setIsEditDialogOpen(false);
+      toast.success("Product updated successfully");
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast.error("Failed to update product");
+    }
+  };
+
+  const handleDeleteProduct = async () => {
+    if (!currentProduct) return;
+    
+    try {
+      const success = await productService.deleteProduct(currentProduct.id);
+      if (success) {
         setProducts(products.filter(p => p.id !== currentProduct.id));
         toast.success("Product deleted successfully");
       } else {
         toast.error("Failed to delete product");
       }
       setIsDeleteDialogOpen(false);
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast.error("Failed to delete product");
     }
   };
 
@@ -80,8 +104,8 @@ const Products = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  if (!isAdmin()) {
-    return null; // Will redirect in useEffect
+  if (loading || (!loading && !isAdmin())) {
+    return null;
   }
 
   return (
@@ -98,67 +122,71 @@ const Products = () => {
         </Button>
       </div>
       
-      <div className="bg-[#f8f4e5] rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-[#ece6d3] border-b">
-                <th className="py-3 px-4">Product</th>
-                <th className="py-3 px-4">Category</th>
-                <th className="py-3 px-4">Price</th>
-                <th className="py-3 px-4">Stock</th>
-                <th className="py-3 px-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map(product => (
-                <tr key={product.id} className="border-b">
-                  <td className="py-3 px-4">
-                    <div className="flex items-center">
-                      <img 
-                        src={product.image} 
-                        alt={product.name}
-                        className="w-10 h-10 object-cover rounded mr-3"
-                      />
-                      <div className="font-medium">{product.name}</div>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 capitalize">{product.category}</td>
-                  <td className="py-3 px-4">€{product.price.toFixed(2)}</td>
-                  <td className="py-3 px-4">
-                    {product.stock < 5 ? (
-                      <span className="text-red-600 font-medium">{product.stock}</span>
-                    ) : (
-                      product.stock
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex space-x-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => openEditDialog(product)}
-                      >
-                        <Pencil size={14} className="mr-1" /> Edit
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => openDeleteDialog(product)}
-                      >
-                        <Trash2 size={14} className="mr-1" /> Delete
-                      </Button>
-                    </div>
-                  </td>
+      {productsLoading ? (
+        <div className="text-center py-8">Loading products...</div>
+      ) : (
+        <div className="bg-[#f8f4e5] rounded-lg shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-[#ece6d3] border-b">
+                  <th className="py-3 px-4">Product</th>
+                  <th className="py-3 px-4">Category</th>
+                  <th className="py-3 px-4">Price</th>
+                  <th className="py-3 px-4">Stock</th>
+                  <th className="py-3 px-4">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {products.map(product => (
+                  <tr key={product.id} className="border-b">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center">
+                        <img 
+                          src={product.image || 'https://placehold.co/40x40?text=No+Image'} 
+                          alt={product.name}
+                          className="w-10 h-10 object-cover rounded mr-3"
+                        />
+                        <div className="font-medium">{product.name}</div>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 capitalize">{product.category}</td>
+                    <td className="py-3 px-4">€{product.price.toFixed(2)}</td>
+                    <td className="py-3 px-4">
+                      {product.stock < 5 ? (
+                        <span className="text-red-600 font-medium">{product.stock}</span>
+                      ) : (
+                        product.stock
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex space-x-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => openEditDialog(product)}
+                        >
+                          <Pencil size={14} className="mr-1" /> Edit
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => openDeleteDialog(product)}
+                        >
+                          <Trash2 size={14} className="mr-1" /> Delete
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Add Product Dialog */}
+      {/* Dialogs remain the same */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="max-w-2xl bg-[#f8f4e5]">
           <DialogHeader>
@@ -168,7 +196,6 @@ const Products = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Product Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-2xl bg-[#f8f4e5]">
           <DialogHeader>
@@ -183,7 +210,6 @@ const Products = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="bg-[#f8f4e5]">
           <DialogHeader>

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Product } from "../../data/products";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { DialogClose } from "@/components/ui/dialog";
 import { categories } from "../../data/products";
+import ImageUpload from "./ImageUpload";
 import {
   Form,
   FormControl,
@@ -18,11 +19,13 @@ import {
 
 type ProductFormProps = {
   product?: Product;
-  // Update the type to include both forms of data that can be submitted
   onSubmit: (data: Omit<Product, "id"> | (Omit<Product, "id"> & { id: number })) => void;
 };
 
 const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
+  const [imageUrl, setImageUrl] = useState(product?.image || "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<Omit<Product, "id">>({
     defaultValues: product ? {
       name: product.name,
@@ -36,26 +39,28 @@ const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
       description: "",
       price: 0,
       image: "",
-      category: categories[1], // Default to first non-"all" category
+      category: categories[1],
       stock: 0,
     },
   });
 
-  const handleSubmit = (data: Omit<Product, "id">) => {
-    // Format data
-    const formattedData = {
-      ...data,
-      price: Number(data.price),
-      stock: Number(data.stock),
-    };
+  const handleSubmit = async (data: Omit<Product, "id">) => {
+    setIsSubmitting(true);
+    try {
+      const formattedData = {
+        ...data,
+        price: Number(data.price),
+        stock: Number(data.stock),
+        image: imageUrl,
+      };
 
-    if (product) {
-      // When editing, pass the complete Product with id
-      // Cast the result to avoid TypeScript errors
-      onSubmit({ ...formattedData, id: product.id } as Omit<Product, "id"> & { id: number });
-    } else {
-      // When adding, pass just the data without id
-      onSubmit(formattedData);
+      if (product) {
+        onSubmit({ ...formattedData, id: product.id } as Omit<Product, "id"> & { id: number });
+      } else {
+        onSubmit(formattedData);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -143,42 +148,20 @@ const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="image"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Image URL</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter image URL" {...field} />
-              </FormControl>
-              <FormMessage />
-              
-              {field.value && (
-                <div className="mt-2">
-                  <p className="text-sm mb-2">Preview:</p>
-                  <img
-                    src={field.value}
-                    alt="Product preview"
-                    className="w-32 h-32 object-cover rounded border"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "https://placehold.co/600x400?text=Preview";
-                    }}
-                  />
-                </div>
-              )}
-            </FormItem>
-          )}
+        <ImageUpload
+          currentImageUrl={imageUrl}
+          onImageChange={setImageUrl}
+          disabled={isSubmitting}
         />
 
         <div className="flex justify-end gap-2 pt-4">
           <DialogClose asChild>
-            <Button variant="outline" type="button">
+            <Button variant="outline" type="button" disabled={isSubmitting}>
               Cancel
             </Button>
           </DialogClose>
-          <Button type="submit">
-            {product ? "Update Product" : "Add Product"}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : product ? "Update Product" : "Add Product"}
           </Button>
         </div>
       </form>
