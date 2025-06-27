@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -93,24 +94,6 @@ const Login = () => {
               Register
             </Link>
           </p>
-        </div>
-        
-        <div className="mt-8 border-t pt-6">
-          <div className="text-sm text-muted-foreground mb-4 text-center">
-            Demo Accounts
-          </div>
-          <div className="space-y-2 text-sm">
-            <div className="p-2 border rounded-md">
-              <div className="font-medium">Admin Account</div>
-              <div>Email: admin@example.com</div>
-              <div>Password: admin123</div>
-            </div>
-            <div className="p-2 border rounded-md">
-              <div className="font-medium">Consumer Account</div>
-              <div>Email: user@example.com</div>
-              <div>Password: user123</div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
