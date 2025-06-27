@@ -1,12 +1,11 @@
 
 import { useState } from "react";
-import { Mail, MessageSquare, HelpCircle } from "lucide-react";
+import { Mail, MessageSquare, HelpCircle, Shield, Lock, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,44 +16,20 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
-import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogTitle, DialogHeader } from "@/components/ui/dialog";
-
-const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  phone: z.string().min(5, { message: "Please enter a valid phone number." }),
-  experience: z.string().min(10, { message: "Please describe your experience." }),
-  coverLetter: z.string().min(10, { message: "Cover letter must be at least 10 characters." }),
-  cv: z.instanceof(File).optional().nullable()
-});
 
 // Schema for the email dialog form
 const emailFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
+  subject: z.string().min(5, { message: "Subject must be at least 5 characters." }),
   message: z.string().min(10, { message: "Message must be at least 10 characters." })
 });
 
-type ContactFormValues = z.infer<typeof formSchema>;
 type EmailFormValues = z.infer<typeof emailFormSchema>;
 
 const Contact = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-  const form = useForm<ContactFormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      experience: "",
-      coverLetter: "",
-      cv: null
-    }
-  });
 
   // For the email dialog form
   const emailForm = useForm<EmailFormValues>({
@@ -62,37 +37,15 @@ const Contact = () => {
     defaultValues: {
       name: "",
       email: "",
+      subject: "",
       message: ""
     }
   });
 
-  function onSubmit(data: ContactFormValues) {
-    setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast({
-        title: "Application sent",
-        description: "Thank you for your application. We'll review it and get back to you soon!",
-      });
-      form.reset();
-      setSelectedFile(null);
-    }, 1500);
-    
-    console.log("Job application submitted", data);
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setSelectedFile(file);
-    form.setValue("cv", file);
-  };
-
   const submitEmailForm = emailForm.handleSubmit((data) => {
     toast({
-      title: "Email sent",
-      description: "We'll get back to you as soon as possible.",
+      title: "Message sent successfully",
+      description: "We'll get back to you within 24 hours.",
     });
     setIsEmailDialogOpen(false);
     emailForm.reset();
@@ -100,16 +53,17 @@ const Contact = () => {
 
   return (
     <div className="container mx-auto px-4 py-12 bg-[#f8f6f1]">
-      <h1 className="text-3xl font-bold mb-8 text-center">Join Our Team</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">Contact & Support</h1>
       
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-4xl mx-auto">
+        {/* Contact Methods */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <div className="bg-white p-6 rounded-lg shadow-sm text-center hover:shadow-md transition-shadow">
             <div className="bg-[#f5f2eb] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
               <Mail className="h-5 w-5 text-[#c4a484]" />
             </div>
-            <h3 className="font-semibold text-lg mb-2">Email Us</h3>
-            <p className="text-muted-foreground mb-4">Contact our support team</p>
+            <h3 className="font-semibold text-lg mb-2">Email Support</h3>
+            <p className="text-muted-foreground mb-4">Get help with orders, returns & general inquiries</p>
             <Button variant="outline" onClick={() => setIsEmailDialogOpen(true)}>
               Send Email
             </Button>
@@ -119,11 +73,11 @@ const Contact = () => {
             <div className="bg-[#f5f2eb] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
               <MessageSquare className="h-5 w-5 text-[#c4a484]" />
             </div>
-            <h3 className="font-semibold text-lg mb-2">WhatsApp Chat</h3>
-            <p className="text-muted-foreground mb-4">Message us directly</p>
+            <h3 className="font-semibold text-lg mb-2">Live Chat</h3>
+            <p className="text-muted-foreground mb-4">Chat with our support team instantly</p>
             <Button variant="outline" asChild>
               <a href="https://wa.me/123456789" target="_blank" rel="noopener noreferrer">
-                +123 456 789
+                Start Chat
               </a>
             </Button>
           </div>
@@ -132,129 +86,62 @@ const Contact = () => {
             <div className="bg-[#f5f2eb] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
               <HelpCircle className="h-5 w-5 text-[#c4a484]" />
             </div>
-            <h3 className="font-semibold text-lg mb-2">FAQ</h3>
-            <p className="text-muted-foreground mb-4">Find answers to common questions</p>
+            <h3 className="font-semibold text-lg mb-2">Help Center</h3>
+            <p className="text-muted-foreground mb-4">Browse our FAQ and support articles</p>
             <Button variant="outline" onClick={() => document.getElementById('faq')?.scrollIntoView({behavior: 'smooth'})}>
-              View FAQs
+              View FAQ
             </Button>
           </div>
         </div>
-        
+
+        {/* Secure Payment Methods */}
         <div className="bg-white p-8 rounded-lg shadow-sm mb-12">
-          <h2 className="text-2xl font-bold mb-6">Apply for Customer Assistant Position</h2>
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold mb-2">Secure Payment Methods</h2>
+            <p className="text-muted-foreground">We accept all major payment methods with bank-level security</p>
+          </div>
           
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="John Doe" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input placeholder="john@example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="+1 234 567 890" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="experience"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Relevant Experience</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Please describe your customer service experience..."
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="coverLetter"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cover Letter</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Tell us why you'd be a great fit for this role..."
-                        className="min-h-[150px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="cv"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Upload CV (PDF or DOC)</FormLabel>
-                    <FormControl>
-                      <div className="flex items-center gap-2">
-                        <Input 
-                          type="file" 
-                          accept=".pdf,.doc,.docx" 
-                          onChange={handleFileChange}
-                        />
-                      </div>
-                    </FormControl>
-                    {selectedFile && (
-                      <div className="text-sm text-muted-foreground mt-2">
-                        Selected file: {selectedFile.name}
-                      </div>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <Button type="submit" className="bg-[#F97316] hover:bg-[#F97316]/90 w-full md:w-auto" disabled={isSubmitting}>
-                {isSubmitting ? "Submitting..." : "Submit Application"}
-              </Button>
-            </form>
-          </Form>
+          <div className="flex flex-wrap justify-center items-center gap-6 mb-6">
+            <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
+              <CreditCard className="h-6 w-6 text-blue-600" />
+              <span className="font-medium">Visa</span>
+            </div>
+            <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
+              <CreditCard className="h-6 w-6 text-red-600" />
+              <span className="font-medium">Mastercard</span>
+            </div>
+            <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
+              <CreditCard className="h-6 w-6 text-blue-800" />
+              <span className="font-medium">American Express</span>
+            </div>
+            <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
+              <CreditCard className="h-6 w-6 text-blue-500" />
+              <span className="font-medium">PayPal</span>
+            </div>
+            <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
+              <CreditCard className="h-6 w-6 text-green-600" />
+              <span className="font-medium">Apple Pay</span>
+            </div>
+            <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
+              <CreditCard className="h-6 w-6 text-orange-600" />
+              <span className="font-medium">Google Pay</span>
+            </div>
+          </div>
+
+          <div className="flex justify-center items-center space-x-8 text-sm text-muted-foreground">
+            <div className="flex items-center space-x-2">
+              <Shield className="h-4 w-4 text-green-600" />
+              <span>SSL Encrypted</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Lock className="h-4 w-4 text-green-600" />
+              <span>PCI Compliant</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Shield className="h-4 w-4 text-green-600" />
+              <span>256-bit Security</span>
+            </div>
+          </div>
         </div>
         
         {/* FAQ Section */}
@@ -263,28 +150,49 @@ const Contact = () => {
           
           <div className="space-y-6">
             <div className="border-b pb-4">
-              <h3 className="text-lg font-medium mb-2">What are the working hours for this position?</h3>
-              <p className="text-muted-foreground">Our customer assistants typically work 40 hours per week on rotating shifts, including some weekends.</p>
+              <h3 className="text-lg font-medium mb-2 flex items-center gap-2">
+                <Shield className="h-5 w-5 text-green-600" />
+                How secure is my personal information?
+              </h3>
+              <p className="text-muted-foreground">We use industry-standard SSL encryption and are fully PCI DSS compliant. Your data is stored securely and never shared with third parties without your consent.</p>
             </div>
             
             <div className="border-b pb-4">
-              <h3 className="text-lg font-medium mb-2">Is remote work available?</h3>
-              <p className="text-muted-foreground">We offer hybrid working arrangements with a minimum of 2 days per week in our physical store.</p>
+              <h3 className="text-lg font-medium mb-2 flex items-center gap-2">
+                <Lock className="h-5 w-5 text-blue-600" />
+                What about GDPR compliance?
+              </h3>
+              <p className="text-muted-foreground">We are fully GDPR compliant. You have the right to access, modify, or delete your personal data at any time. Contact us to exercise these rights or view our Privacy Policy for details.</p>
             </div>
             
             <div className="border-b pb-4">
-              <h3 className="text-lg font-medium mb-2">What experience is required?</h3>
-              <p className="text-muted-foreground">At least 1 year of customer service experience is preferred, but we also consider applications from enthusiastic beginners with strong communication skills.</p>
+              <h3 className="text-lg font-medium mb-2">How are payments processed?</h3>
+              <p className="text-muted-foreground">All payments are processed through secure, encrypted connections. We don't store your credit card information on our servers - it's handled by certified payment processors.</p>
             </div>
             
             <div className="border-b pb-4">
-              <h3 className="text-lg font-medium mb-2">What benefits do you offer?</h3>
-              <p className="text-muted-foreground">We offer competitive salary, staff discounts on our products, health insurance, and performance bonuses.</p>
+              <h3 className="text-lg font-medium mb-2">Can I request my data or account deletion?</h3>
+              <p className="text-muted-foreground">Yes, under GDPR you can request a copy of all your data or complete account deletion. Contact our support team and we'll process your request within 30 days.</p>
+            </div>
+            
+            <div className="border-b pb-4">
+              <h3 className="text-lg font-medium mb-2">How do you handle cookies?</h3>
+              <p className="text-muted-foreground">We use essential cookies for website functionality and optional analytics cookies to improve your experience. You can manage cookie preferences in your browser settings.</p>
+            </div>
+            
+            <div className="border-b pb-4">
+              <h3 className="text-lg font-medium mb-2">What's your refund policy?</h3>
+              <p className="text-muted-foreground">We offer a 30-day return policy for most items. Refunds are processed within 5-7 business days to your original payment method once we receive the returned item.</p>
+            </div>
+            
+            <div className="border-b pb-4">
+              <h3 className="text-lg font-medium mb-2">How do I track my order?</h3>
+              <p className="text-muted-foreground">You'll receive tracking information via email once your order ships. You can also view order status in your account under 'My Orders'.</p>
             </div>
             
             <div>
-              <h3 className="text-lg font-medium mb-2">How long is the application process?</h3>
-              <p className="text-muted-foreground">Our hiring process typically takes 2-3 weeks from application to final decision.</p>
+              <h3 className="text-lg font-medium mb-2">Who can I contact for technical issues?</h3>
+              <p className="text-muted-foreground">Our technical support team is available 24/7 via email or live chat. For urgent issues, use the live chat option for immediate assistance.</p>
             </div>
           </div>
         </div>
@@ -294,7 +202,7 @@ const Contact = () => {
       <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Send us an email</DialogTitle>
+            <DialogTitle>Contact Support</DialogTitle>
           </DialogHeader>
           
           <Form {...emailForm}>
@@ -329,13 +237,27 @@ const Contact = () => {
               
               <FormField
                 control={emailForm.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject</FormLabel>
+                    <FormControl>
+                      <Input placeholder="How can we help?" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={emailForm.control}
                 name="message"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Message</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="How can we help you?" 
+                        placeholder="Please describe your inquiry..." 
                         className="min-h-[120px]"
                         {...field} 
                       />
@@ -350,7 +272,7 @@ const Contact = () => {
                   Cancel
                 </Button>
                 <Button type="submit" className="bg-[#F97316] hover:bg-[#F97316]/90">
-                  Send Email
+                  Send Message
                 </Button>
               </div>
             </form>
