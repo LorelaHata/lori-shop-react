@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useForm } from "react-hook-form";
-import { Product } from "../../data/products";
+import { Product, subcategories } from "../../data/products";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,16 +29,21 @@ const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
       price: product.price,
       image: product.image,
       category: product.category,
+      subcategory: product.subcategory || "",
       stock: product.stock,
     } : {
       name: "",
       description: "",
       price: 0,
       image: "",
-      category: categories[1], // Default to first non-"all" category
+      category: categories.filter(cat => !cat.includes("all") && !cat.includes("-"))[0], // Default to first non-"all" category
+      subcategory: "",
       stock: 0,
     },
   });
+
+  const selectedCategory = form.watch("category");
+  const isClothingCategory = selectedCategory === "clothing";
 
   const handleSubmit = (data: Omit<Product, "id">) => {
     // Format data
@@ -46,6 +51,7 @@ const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
       ...data,
       price: Number(data.price),
       stock: Number(data.stock),
+      subcategory: isClothingCategory ? data.subcategory : undefined,
     };
 
     if (product) {
@@ -129,7 +135,7 @@ const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
                   className="w-full h-10 rounded-md border border-input bg-background px-3 py-2"
                   {...field}
                 >
-                  {categories.filter(cat => cat !== "all").map((category) => (
+                  {categories.filter(cat => cat !== "all" && !cat.includes("-")).map((category) => (
                     <option key={category} value={category}>
                       {category.charAt(0).toUpperCase() + category.slice(1)}
                     </option>
@@ -140,6 +146,32 @@ const ProductForm = ({ product, onSubmit }: ProductFormProps) => {
             </FormItem>
           )}
         />
+
+        {isClothingCategory && (
+          <FormField
+            control={form.control}
+            name="subcategory"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Subcategory</FormLabel>
+                <FormControl>
+                  <select
+                    className="w-full h-10 rounded-md border border-input bg-background px-3 py-2"
+                    {...field}
+                  >
+                    <option value="">Select subcategory</option>
+                    {subcategories.clothing.map((subcategory) => (
+                      <option key={subcategory} value={subcategory}>
+                        {subcategory.charAt(0).toUpperCase() + subcategory.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}

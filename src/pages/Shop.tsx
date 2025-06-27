@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import ProductCard from "../components/ProductCard";
 import { Product, categories } from "../data/products";
@@ -49,7 +48,13 @@ const Shop = () => {
     
     // Apply category filter
     if (selectedCategory !== "all") {
-      result = result.filter(product => product.category === selectedCategory);
+      if (selectedCategory === "clothing-male") {
+        result = result.filter(product => product.category === "clothing" && product.subcategory === "male");
+      } else if (selectedCategory === "clothing-female") {
+        result = result.filter(product => product.category === "clothing" && product.subcategory === "female");
+      } else {
+        result = result.filter(product => product.category === selectedCategory);
+      }
     }
     
     // Apply search filter
@@ -83,6 +88,19 @@ const Shop = () => {
       setSearchParams({});
     }
     setIsSearching(false);
+  };
+
+  const getCategoryDisplayName = (category: string) => {
+    switch (category) {
+      case "clothing-male":
+        return "Men's Clothing";
+      case "clothing-female":
+        return "Women's Clothing";
+      case "all":
+        return "All Products";
+      default:
+        return category.charAt(0).toUpperCase() + category.slice(1);
+    }
   };
 
   if (loading) {
@@ -137,10 +155,10 @@ const Shop = () => {
                 <Button
                   key={category}
                   variant={selectedCategory === category ? "default" : "ghost"}
-                  className="justify-start w-full text-left capitalize"
+                  className="justify-start w-full text-left"
                   onClick={() => setSelectedCategory(category)}
                 >
-                  {category}
+                  {getCategoryDisplayName(category)}
                 </Button>
               ))}
             </div>

@@ -1,4 +1,3 @@
-
 export interface Product {
   id: number;
   name: string;
@@ -6,6 +5,7 @@ export interface Product {
   price: number;
   image: string;
   category: string;
+  subcategory?: string;
   stock: number;
 }
 
@@ -26,6 +26,7 @@ export const products: Product[] = [
     price: 89.99,
     image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1036&q=80",
     category: "clothing",
+    subcategory: "male",
     stock: 20
   },
   {
@@ -53,6 +54,7 @@ export const products: Product[] = [
     price: 29.99,
     image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&q=80",
     category: "clothing",
+    subcategory: "male",
     stock: 30
   },
   {
@@ -71,6 +73,7 @@ export const products: Product[] = [
     price: 69.99,
     image: "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1025&q=80",
     category: "clothing",
+    subcategory: "female",
     stock: 22
   },
   {
@@ -152,6 +155,7 @@ export const products: Product[] = [
     price: 79.99,
     image: "https://images.unsplash.com/photo-1551537482-f2075a1d41f2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
     category: "clothing",
+    subcategory: "female",
     stock: 15
   }
 ];
@@ -159,10 +163,16 @@ export const products: Product[] = [
 export const categories = [
   "all",
   "clothing",
+  "clothing-male",
+  "clothing-female",
   "accessories",
   "electronics",
   "home"
 ];
+
+export const subcategories = {
+  clothing: ["male", "female"]
+};
 
 export const getProductById = (id: number): Product | undefined => {
   return products.find(product => product.id === id);
@@ -171,6 +181,12 @@ export const getProductById = (id: number): Product | undefined => {
 export const getProductsByCategory = (category: string): Product[] => {
   if (category === "all") {
     return products;
+  }
+  if (category === "clothing-male") {
+    return products.filter(product => product.category === "clothing" && product.subcategory === "male");
+  }
+  if (category === "clothing-female") {
+    return products.filter(product => product.category === "clothing" && product.subcategory === "female");
   }
   return products.filter(product => product.category === category);
 };
