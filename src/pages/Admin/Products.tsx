@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -60,11 +59,12 @@ const Products = () => {
     }
   };
 
-  const handleEditProduct = async (updatedProduct: Product) => {
+  const handleEditProduct = async (updatedProduct: Omit<Product, "id">, productId?: number) => {
+    if (!productId) return;
+    
     try {
-      const { id, ...updates } = updatedProduct;
-      const updated = await updateProduct(id, updates);
-      setProducts(products.map(p => p.id === id ? updated : p));
+      const updated = await updateProduct(productId, updatedProduct);
+      setProducts(products.map(p => p.id === productId ? updated : p));
       setIsEditDialogOpen(false);
       toast.success("Product updated successfully");
     } catch (error) {
