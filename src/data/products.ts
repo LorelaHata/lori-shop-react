@@ -1,4 +1,5 @@
 
+
 // Re-export everything for backward compatibility
 export type { Product } from "../types/product";
 export { products } from "./mockProducts";
@@ -10,3 +11,4 @@ export {
   updateProduct, 
   deleteProduct 
 } from "../utils/productHelpers";
+

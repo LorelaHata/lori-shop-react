@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProductCard from "../components/ProductCard";
@@ -6,9 +7,14 @@ import { Euro, Truck, Award } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 const Index = () => {
+  console.log("Index component loaded");
+  console.log("Products available:", products);
+  
   // Display only 4 featured products on the homepage
   const featuredProducts = products.slice(0, 4);
   const { isAuthenticated } = useAuth();
+
+  console.log("Featured products:", featuredProducts);
 
   return (
     <div className="page-transition">
