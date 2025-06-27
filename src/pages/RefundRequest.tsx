@@ -140,11 +140,20 @@ const RefundRequest = () => {
     try {
       // Create refund request for each selected item
       data.selectedItems.forEach(item => {
+        // Convert the form item to OrderItem format
+        const orderItem: OrderItem = {
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image
+        };
+
         addRefundRequest({
           orderId: item.orderId,
           reason: data.reason,
           amount: item.price * item.quantity,
-          items: [item]
+          items: [orderItem]
         });
       });
 
