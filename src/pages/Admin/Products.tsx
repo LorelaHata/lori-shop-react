@@ -3,13 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { 
-  products as initialProducts, 
-  Product, 
-  addProduct, 
-  updateProduct, 
-  deleteProduct 
-} from "../../data/products";
+import { Product } from "../../data/products";
 import { ArrowLeft, Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { 
@@ -21,52 +15,75 @@ import {
   DialogClose
 } from "@/components/ui/dialog";
 import ProductForm from "../../components/Admin/ProductForm";
+import { fetchProducts, createProduct, updateProduct, deleteProduct } from "../../services/productService";
 
 const Products = () => {
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    // Check if user is admin, otherwise redirect
     if (!isAdmin()) {
       navigate("/");
+      return;
     }
+    loadProducts();
   }, [isAdmin, navigate]);
 
-  const handleAddProduct = (newProduct: Omit<Product, "id">) => {
-    // Use the addProduct utility from data/products.ts to ensure global update
-    const productToAdd = addProduct(newProduct);
-    setProducts([...products, productToAdd]);
-    setIsAddDialogOpen(false);
-    toast.success("Product added successfully");
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const productsData = await fetchProducts();
+      setProducts(productsData);
+    } catch (error) {
+      toast.error("Failed to load products");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleEditProduct = (updatedProduct: Product) => {
-    // Use the updateProduct utility from data/products.ts to ensure global update
-    updateProduct(updatedProduct);
-    setProducts(products.map(p => 
-      p.id === updatedProduct.id ? updatedProduct : p
-    ));
-    setIsEditDialogOpen(false);
-    toast.success("Product updated successfully");
+  const handleAddProduct = async (newProduct: Omit<Product, "id">) => {
+    try {
+      const createdProduct = await createProduct(newProduct);
+      setProducts([createdProduct, ...products]);
+      setIsAddDialogOpen(false);
+      toast.success("Product added successfully");
+    } catch (error) {
+      toast.error("Failed to add product");
+      console.error(error);
+    }
   };
 
-  const handleDeleteProduct = () => {
-    if (currentProduct) {
-      // Use the deleteProduct utility from data/products.ts to ensure global update
-      const deleted = deleteProduct(currentProduct.id);
-      if (deleted) {
-        setProducts(products.filter(p => p.id !== currentProduct.id));
-        toast.success("Product deleted successfully");
-      } else {
-        toast.error("Failed to delete product");
-      }
+  const handleEditProduct = async (updatedProduct: Product) => {
+    try {
+      const { id, ...updates } = updatedProduct;
+      const updated = await updateProduct(id, updates);
+      setProducts(products.map(p => p.id === id ? updated : p));
+      setIsEditDialogOpen(false);
+      toast.success("Product updated successfully");
+    } catch (error) {
+      toast.error("Failed to update product");
+      console.error(error);
+    }
+  };
+
+  const handleDeleteProduct = async () => {
+    if (!currentProduct) return;
+    
+    try {
+      await deleteProduct(currentProduct.id);
+      setProducts(products.filter(p => p.id !== currentProduct.id));
       setIsDeleteDialogOpen(false);
+      toast.success("Product deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete product");
+      console.error(error);
     }
   };
 
@@ -81,7 +98,15 @@ const Products = () => {
   };
 
   if (!isAdmin()) {
-    return null; // Will redirect in useEffect
+    return null;
+  }
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 page-transition">
+        <div className="text-center">Loading products...</div>
+      </div>
+    );
   }
 
   return (

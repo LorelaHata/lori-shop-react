@@ -1,21 +1,42 @@
 
 import { useState, useEffect } from "react";
 import ProductCard from "../components/ProductCard";
-import { products, categories } from "../data/products";
+import { Product, categories } from "../data/products";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
+import { fetchProducts } from "../services/productService";
+import { toast } from "sonner";
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialSearchQuery = searchParams.get("search") || "";
 
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [sortOption, setSortOption] = useState("default");
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const productsData = await fetchProducts();
+      setProducts(productsData);
+    } catch (error) {
+      toast.error("Failed to load products");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     let result = [...products];
@@ -45,7 +66,7 @@ const Shop = () => {
     }
     
     setFilteredProducts(result);
-  }, [selectedCategory, sortOption, searchQuery]);
+  }, [selectedCategory, sortOption, searchQuery, products]);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +78,14 @@ const Shop = () => {
     }
     setIsSearching(false);
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 page-transition">
+        <div className="text-center">Loading products...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 page-transition">
