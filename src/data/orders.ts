@@ -45,7 +45,32 @@ export const paymentMethods: PaymentMethod[] = [
   }
 ];
 
-// Sample orders
+// Helper function to generate real-time dates based on order status
+const generateOrderDates = (status: string, baseDate?: Date) => {
+  const now = baseDate || new Date();
+  let orderDate: Date;
+  
+  switch (status) {
+    case "delivered":
+      orderDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+      break;
+    case "shipped":
+      orderDate = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000); // 3 days ago
+      break;
+    case "processing":
+      orderDate = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000); // 1 day ago
+      break;
+    default:
+      orderDate = new Date(now.getTime() - 2 * 60 * 60 * 1000); // 2 hours ago
+  }
+  
+  return {
+    createdAt: orderDate.toISOString(),
+    updatedAt: new Date(orderDate.getTime() + 2 * 60 * 60 * 1000).toISOString() // 2 hours after creation
+  };
+};
+
+// Sample orders with real-time dates
 export const orders: Order[] = [
   {
     id: "ord-001",
@@ -68,8 +93,7 @@ export const orders: Order[] = [
     ],
     total: 419.97,
     status: "delivered",
-    createdAt: "2025-04-12T10:30:00Z",
-    updatedAt: "2025-04-15T15:20:00Z",
+    ...generateOrderDates("delivered"),
     shippingAddress: addresses[0],
     paymentMethod: paymentMethods[0],
     trackingNumber: "UPS-12345678"
@@ -88,8 +112,7 @@ export const orders: Order[] = [
     ],
     total: 149.99,
     status: "shipped",
-    createdAt: "2025-05-01T14:20:00Z",
-    updatedAt: "2025-05-02T09:15:00Z",
+    ...generateOrderDates("shipped"),
     shippingAddress: addresses[0],
     paymentMethod: paymentMethods[0],
     trackingNumber: "FEDEX-87654321"
@@ -108,14 +131,32 @@ export const orders: Order[] = [
     ],
     total: 899.99,
     status: "processing",
-    createdAt: "2025-05-15T11:45:00Z", 
-    updatedAt: "2025-05-15T12:30:00Z",
+    ...generateOrderDates("processing"),
     shippingAddress: addresses[1],
     paymentMethod: paymentMethods[1]
   }
 ];
 
-// Sample refund requests
+// Helper function to generate real-time refund dates
+const generateRefundDates = (status: string) => {
+  const now = new Date();
+  let requestDate: Date;
+  let responseDate: Date | undefined;
+  
+  if (status === "approved" || status === "rejected") {
+    requestDate = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000); // 5 days ago
+    responseDate = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000); // 2 days ago
+  } else {
+    requestDate = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000); // 2 days ago
+  }
+  
+  return {
+    requestDate: requestDate.toISOString(),
+    responseDate: responseDate?.toISOString()
+  };
+};
+
+// Sample refund requests with real-time dates
 export const refundRequests: RefundRequest[] = [
   {
     id: "ref-001",
@@ -123,8 +164,7 @@ export const refundRequests: RefundRequest[] = [
     reason: "Item arrived damaged",
     status: "approved",
     amount: 59.99,
-    requestDate: "2025-04-20T09:15:00Z",
-    responseDate: "2025-04-21T14:30:00Z",
+    ...generateRefundDates("approved"),
     items: [
       {
         productId: 3,
@@ -141,7 +181,7 @@ export const refundRequests: RefundRequest[] = [
     reason: "Wrong size",
     status: "pending",
     amount: 149.99,
-    requestDate: "2025-05-10T15:45:00Z",
+    ...generateRefundDates("pending"),
     items: [
       {
         productId: 5,

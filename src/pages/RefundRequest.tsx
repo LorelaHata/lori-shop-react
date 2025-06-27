@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -27,88 +26,94 @@ import { Textarea } from "@/components/ui/textarea";
 import { Order, OrderStatus, OrderItem } from "../types/order";
 import { Check } from "lucide-react";
 
-// Mock order data for the demo
-const mockOrders: Order[] = [
-  {
-    id: "order-123456",
-    userId: "user-1",
-    items: [
-      {
-        productId: 1,
-        name: "Minimalist Watch",
-        price: 159.99,
-        quantity: 1,
-        image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1399&q=80"
+// Generate mock orders with real-time dates
+const generateMockOrders = (): Order[] => {
+  const now = new Date();
+  
+  return [
+    {
+      id: "order-123456",
+      userId: "user-1",
+      items: [
+        {
+          productId: 1,
+          name: "Minimalist Watch",
+          price: 159.99,
+          quantity: 1,
+          image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1399&q=80"
+        },
+        {
+          productId: 5,
+          name: "Cotton T-Shirt",
+          price: 29.99,
+          quantity: 2,
+          image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&q=80"
+        }
+      ],
+      total: 219.97,
+      status: "delivered",
+      createdAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
+      updatedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+      shippingAddress: {
+        id: "addr-1",
+        name: "John Doe",
+        street: "123 Main St",
+        city: "New York",
+        state: "NY",
+        zipCode: "10001",
+        country: "United States",
+        isDefault: true
       },
-      {
-        productId: 5,
-        name: "Cotton T-Shirt",
-        price: 29.99,
-        quantity: 2,
-        image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&q=80"
-      }
-    ],
-    total: 219.97,
-    status: "delivered",
-    createdAt: "2023-04-15T10:30:00Z",
-    updatedAt: "2023-04-18T09:45:00Z",
-    shippingAddress: {
-      id: "addr-1",
-      name: "John Doe",
-      street: "123 Main St",
-      city: "New York",
-      state: "NY",
-      zipCode: "10001",
-      country: "United States",
-      isDefault: true
+      paymentMethod: {
+        id: "pay-1",
+        cardNumber: "4242",
+        cardHolderName: "John Doe",
+        expiryDate: "04/25",
+        isDefault: true,
+        cardType: "visa"
+      },
+      trackingNumber: "TRK12345678"
     },
-    paymentMethod: {
-      id: "pay-1",
-      cardNumber: "4242",
-      cardHolderName: "John Doe",
-      expiryDate: "04/25",
-      isDefault: true,
-      cardType: "visa"
-    },
-    trackingNumber: "TRK12345678"
-  },
-  {
-    id: "order-789012",
-    userId: "user-1",
-    items: [
-      {
-        productId: 3,
-        name: "Leather Backpack",
-        price: 129.99,
-        quantity: 1,
-        image: "https://images.unsplash.com/photo-1491637639811-60e2756cc1c7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1028&q=80"
-      }
-    ],
-    total: 129.99,
-    status: "delivered",
-    createdAt: "2023-03-28T14:20:00Z",
-    updatedAt: "2023-03-31T16:10:00Z",
-    shippingAddress: {
-      id: "addr-1",
-      name: "John Doe",
-      street: "123 Main St",
-      city: "New York",
-      state: "NY",
-      zipCode: "10001",
-      country: "United States",
-      isDefault: true
-    },
-    paymentMethod: {
-      id: "pay-2",
-      cardNumber: "5678",
-      cardHolderName: "John Doe",
-      expiryDate: "08/24",
-      isDefault: false,
-      cardType: "mastercard"
-    },
-    trackingNumber: "TRK87654321"
-  }
-];
+    {
+      id: "order-789012",
+      userId: "user-1",
+      items: [
+        {
+          productId: 3,
+          name: "Leather Backpack",
+          price: 129.99,
+          quantity: 1,
+          image: "https://images.unsplash.com/photo-1491637639811-60e2756cc1c7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1028&q=80"
+        }
+      ],
+      total: 129.99,
+      status: "delivered",
+      createdAt: new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks ago
+      updatedAt: new Date(now.getTime() - 11 * 24 * 60 * 60 * 1000).toISOString(), // 11 days ago
+      shippingAddress: {
+        id: "addr-1",
+        name: "John Doe",
+        street: "123 Main St",
+        city: "New York",
+        state: "NY",
+        zipCode: "10001",
+        country: "United States",
+        isDefault: true
+      },
+      paymentMethod: {
+        id: "pay-2",
+        cardNumber: "5678",
+        cardHolderName: "John Doe",
+        expiryDate: "08/24",
+        isDefault: false,
+        cardType: "mastercard"
+      },
+      trackingNumber: "TRK87654321"
+    }
+  ];
+};
+
+const mockOrders = generateMockOrders();
 
 const formSchema = z.object({
   reason: z.string().min(10, {
