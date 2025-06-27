@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
@@ -21,99 +21,12 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { Order, OrderStatus, OrderItem } from "../types/order";
 import { Check } from "lucide-react";
-
-// Generate mock orders with real-time dates
-const generateMockOrders = (): Order[] => {
-  const now = new Date();
-  
-  return [
-    {
-      id: "order-123456",
-      userId: "user-1",
-      items: [
-        {
-          productId: 1,
-          name: "Minimalist Watch",
-          price: 159.99,
-          quantity: 1,
-          image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1399&q=80"
-        },
-        {
-          productId: 5,
-          name: "Cotton T-Shirt",
-          price: 29.99,
-          quantity: 2,
-          image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&q=80"
-        }
-      ],
-      total: 219.97,
-      status: "delivered",
-      createdAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-      updatedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
-      shippingAddress: {
-        id: "addr-1",
-        name: "John Doe",
-        street: "123 Main St",
-        city: "New York",
-        state: "NY",
-        zipCode: "10001",
-        country: "United States",
-        isDefault: true
-      },
-      paymentMethod: {
-        id: "pay-1",
-        cardNumber: "4242",
-        cardHolderName: "John Doe",
-        expiryDate: "04/25",
-        isDefault: true,
-        cardType: "visa"
-      },
-      trackingNumber: "TRK12345678"
-    },
-    {
-      id: "order-789012",
-      userId: "user-1",
-      items: [
-        {
-          productId: 3,
-          name: "Leather Backpack",
-          price: 129.99,
-          quantity: 1,
-          image: "https://images.unsplash.com/photo-1491637639811-60e2756cc1c7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1028&q=80"
-        }
-      ],
-      total: 129.99,
-      status: "delivered",
-      createdAt: new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks ago
-      updatedAt: new Date(now.getTime() - 11 * 24 * 60 * 60 * 1000).toISOString(), // 11 days ago
-      shippingAddress: {
-        id: "addr-1",
-        name: "John Doe",
-        street: "123 Main St",
-        city: "New York",
-        state: "NY",
-        zipCode: "10001",
-        country: "United States",
-        isDefault: true
-      },
-      paymentMethod: {
-        id: "pay-2",
-        cardNumber: "5678",
-        cardHolderName: "John Doe",
-        expiryDate: "08/24",
-        isDefault: false,
-        cardType: "mastercard"
-      },
-      trackingNumber: "TRK87654321"
-    }
-  ];
-};
-
-const mockOrders = generateMockOrders();
+import { useAuth } from "../contexts/AuthContext";
+import { getUserOrders, addRefundRequest } from "../data/orders";
 
 const formSchema = z.object({
   reason: z.string().min(10, {
@@ -164,7 +77,10 @@ const formatDate = (dateString: string) => {
 const RefundRequest = () => {
   const [selectedItems, setSelectedItems] = useState<Array<OrderItem & { orderId: string }>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   const form = useForm<RefundFormValues>({
     resolver: zodResolver(formSchema),
@@ -173,6 +89,16 @@ const RefundRequest = () => {
       selectedItems: []
     }
   });
+
+  useEffect(() => {
+    if (user) {
+      const userOrders = getUserOrders(user.id);
+      // Only show delivered orders that can be refunded
+      const refundableOrders = userOrders.filter(order => order.status === "delivered");
+      setOrders(refundableOrders);
+    }
+    setLoading(false);
+  }, [user]);
   
   const handleItemSelect = (order: Order, item: OrderItem) => {
     const itemWithOrderId = { ...item, orderId: order.id };
@@ -204,19 +130,71 @@ const RefundRequest = () => {
   };
   
   function onSubmit(data: RefundFormValues) {
+    if (!user) {
+      toast.error("Please sign in to submit a refund request");
+      return;
+    }
+
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast({
-        title: "Refund request submitted",
-        description: `Your refund request for €${getTotalRefundAmount().toFixed(2)} has been received. We'll review it shortly.`,
+    try {
+      // Create refund request for each selected item
+      data.selectedItems.forEach(item => {
+        addRefundRequest({
+          orderId: item.orderId,
+          reason: data.reason,
+          amount: item.price * item.quantity,
+          items: [item]
+        });
       });
+
+      toast.success(`Refund request submitted for €${getTotalRefundAmount().toFixed(2)}`, {
+        description: "We'll review your request and get back to you shortly."
+      });
+      
       navigate("/profile");
-    }, 1500);
-    
-    console.log("Refund request submitted", data);
+    } catch (error) {
+      toast.error("Failed to submit refund request. Please try again.");
+      console.error("Refund request error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h1 className="text-3xl font-bold mb-4">Sign In Required</h1>
+        <p className="text-muted-foreground mb-8">
+          Please sign in to request refunds for your orders.
+        </p>
+        <Button onClick={() => navigate("/login")}>
+          Sign In
+        </Button>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <p>Loading your orders...</p>
+      </div>
+    );
+  }
+
+  if (orders.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h1 className="text-3xl font-bold mb-4">No Refundable Orders</h1>
+        <p className="text-muted-foreground mb-8">
+          You don't have any delivered orders that can be refunded at this time.
+        </p>
+        <Button onClick={() => navigate("/shop")}>
+          Continue Shopping
+        </Button>
+      </div>
+    );
   }
   
   return (
@@ -232,7 +210,7 @@ const RefundRequest = () => {
             {/* Product Selection */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold">Select Items to Refund</h2>
-              {mockOrders.map(order => (
+              {orders.map(order => (
                 <Card key={order.id}>
                   <CardHeader>
                     <CardTitle className="flex justify-between items-center">

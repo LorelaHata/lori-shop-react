@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useCallback } from "react";
 import ProductCard from "../components/ProductCard";
 import { Product, categories } from "../data/products";
 import { Button } from "@/components/ui/button";
@@ -21,11 +22,7 @@ const Shop = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [showClothingSubcategories, setShowClothingSubcategories] = useState(false);
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       setLoading(true);
       console.log('Starting to load products...');
@@ -36,13 +33,22 @@ const Shop = () => {
       console.error('Error loading products:', error);
       toast.error("Failed to load products");
       // Fallback to local data if Supabase fails
-      const { products: localProducts } = await import("../data/products");
-      setProducts(localProducts);
-      toast.info("Loaded products from local cache");
+      try {
+        const { products: localProducts } = await import("../data/products");
+        setProducts(localProducts);
+        toast.info("Loaded products from local cache");
+      } catch (fallbackError) {
+        console.error('Failed to load fallback products:', fallbackError);
+        toast.error("Failed to load products. Please refresh the page.");
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
 
   useEffect(() => {
     let result = [...products];
@@ -120,7 +126,10 @@ const Shop = () => {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 page-transition">
-        <div className="text-center">Loading products...</div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading products...</p>
+        </div>
       </div>
     );
   }
@@ -230,6 +239,18 @@ const Shop = () => {
           {filteredProducts.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-lg text-gray-600">No products found.</p>
+              {searchQuery && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSearchParams({});
+                  }}
+                  className="mt-4"
+                >
+                  Clear Search
+                </Button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
