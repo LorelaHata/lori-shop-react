@@ -66,7 +66,34 @@ const OrderDetail = () => {
     setItemsToRefund([]);
   };
 
-  const realTimeOrderDate = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString();
+  // Generate consistent real-time dates based on order status
+  const generateOrderDates = () => {
+    const now = new Date();
+    let orderDate: Date;
+    
+    switch (order.status) {
+      case "delivered":
+        orderDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+        break;
+      case "shipped":
+        orderDate = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000); // 3 days ago
+        break;
+      case "processing":
+        orderDate = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000); // 1 day ago
+        break;
+      default:
+        orderDate = new Date(now.getTime() - 2 * 60 * 60 * 1000); // 2 hours ago
+    }
+    
+    return {
+      orderDate: orderDate.toISOString(),
+      processingDate: new Date(orderDate.getTime() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours after order
+      shippedDate: new Date(orderDate.getTime() + 24 * 60 * 60 * 1000).toISOString(), // 1 day after order
+      deliveredDate: new Date(orderDate.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString() // 5 days after order
+    };
+  };
+
+  const orderDates = generateOrderDates();
   
   return (
     <div className="container mx-auto px-4 py-8 page-transition">
@@ -88,7 +115,7 @@ const OrderDetail = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Order Date</p>
-                <p className="font-medium">{formatDate(realTimeOrderDate)}</p>
+                <p className="font-medium">{formatDate(orderDates.orderDate)}</p>
               </div>
             </div>
             
@@ -127,12 +154,13 @@ const OrderDetail = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <OrderTimeline order={order} />
+          <OrderTimeline order={order} orderDates={orderDates} />
           <OrderItems 
             order={order}
             canRequestRefund={canRequestRefund}
             itemsToRefund={itemsToRefund}
             onToggleItemForRefund={toggleItemForRefund}
+            orderDate={orderDates.orderDate}
           />
           <DeliveryInfo order={order} />
           <RefundRequests refunds={existingRefunds} />

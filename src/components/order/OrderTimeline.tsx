@@ -6,12 +6,15 @@ import { Order } from "../../types/order";
 
 interface OrderTimelineProps {
   order: Order;
+  orderDates: {
+    orderDate: string;
+    processingDate: string;
+    shippedDate: string;
+    deliveredDate: string;
+  };
 }
 
-const OrderTimeline = ({ order }: OrderTimelineProps) => {
-  const currentDate = new Date().toISOString();
-  const realTimeOrderDate = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString();
-
+const OrderTimeline = ({ order, orderDates }: OrderTimelineProps) => {
   return (
     <Card>
       <CardHeader>
@@ -27,7 +30,7 @@ const OrderTimeline = ({ order }: OrderTimelineProps) => {
             <div>
               <p className="font-medium">Order Placed</p>
               <p className="text-sm text-muted-foreground">
-                {formatDate(realTimeOrderDate)} at {new Date(realTimeOrderDate).toLocaleTimeString()}
+                {formatDate(orderDates.orderDate)} at {new Date(orderDates.orderDate).toLocaleTimeString()}
               </p>
             </div>
           </div>
@@ -38,7 +41,7 @@ const OrderTimeline = ({ order }: OrderTimelineProps) => {
               <div>
                 <p className="font-medium">Processing Started</p>
                 <p className="text-sm text-muted-foreground">
-                  {formatDate(new Date(Date.now() - Math.random() * 2 * 24 * 60 * 60 * 1000).toISOString())}
+                  {formatDate(orderDates.processingDate)}
                 </p>
               </div>
             </div>
@@ -50,7 +53,7 @@ const OrderTimeline = ({ order }: OrderTimelineProps) => {
               <div>
                 <p className="font-medium">Order Shipped</p>
                 <p className="text-sm text-muted-foreground">
-                  {formatDate(new Date(Date.now() - Math.random() * 1 * 24 * 60 * 60 * 1000).toISOString())}
+                  {formatDate(orderDates.shippedDate)}
                 </p>
               </div>
             </div>
@@ -62,7 +65,7 @@ const OrderTimeline = ({ order }: OrderTimelineProps) => {
               <div>
                 <p className="font-medium">Order Delivered</p>
                 <p className="text-sm text-muted-foreground">
-                  {formatDate(currentDate)} (estimated)
+                  {formatDate(orderDates.deliveredDate)}
                 </p>
               </div>
             </div>

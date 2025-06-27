@@ -9,17 +9,16 @@ interface OrderItemsProps {
   canRequestRefund: boolean;
   itemsToRefund: OrderItem[];
   onToggleItemForRefund: (item: OrderItem) => void;
+  orderDate: string;
 }
 
-const OrderItems = ({ order, canRequestRefund, itemsToRefund, onToggleItemForRefund }: OrderItemsProps) => {
-  const realTimeOrderDate = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString();
-
+const OrderItems = ({ order, canRequestRefund, itemsToRefund, onToggleItemForRefund, orderDate }: OrderItemsProps) => {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Order Items</CardTitle>
         <CardDescription>
-          Order placed on {formatDate(realTimeOrderDate)}
+          Order placed on {formatDate(orderDate)}
         </CardDescription>
       </CardHeader>
       <CardContent>
