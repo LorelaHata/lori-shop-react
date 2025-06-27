@@ -1,7 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { getProductById } from "../data/products";
 import { useCart } from "../contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Minus, Plus, ShoppingCart } from "lucide-react";
@@ -13,6 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { fetchProducts } from "../services/productService";
+import { Product } from "../data/products";
 
 // Available sizes for clothing items
 const clothingSizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
@@ -20,12 +21,45 @@ const clothingSizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const product = getProductById(parseInt(id || "0"));
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string>("");
   
   const isClothing = product?.category === "clothing";
+
+  useEffect(() => {
+    const loadProduct = async () => {
+      if (!id) return;
+      
+      try {
+        setLoading(true);
+        const products = await fetchProducts();
+        const foundProduct = products.find(p => p.id === parseInt(id));
+        setProduct(foundProduct || null);
+      } catch (error) {
+        console.error('Error loading product:', error);
+        toast.error("Failed to load product");
+        // Fallback to local data
+        const { getProductById } = await import("../data/products");
+        const fallbackProduct = getProductById(parseInt(id));
+        setProduct(fallbackProduct || null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProduct();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <div className="text-lg">Loading product...</div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -67,12 +101,16 @@ const ProductDetail = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Image */}
         <div>
-          <div className="relative bg-white rounded-lg overflow-hidden">
+          <div className="relative bg-white rounded-lg overflow-hidden shadow-lg">
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-96 object-cover"
+              className="w-full h-96 object-cover transition-transform hover:scale-105"
               loading="lazy"
+              onError={(e) => {
+                console.error('Failed to load product image:', product.image);
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80';
+              }}
             />
           </div>
         </div>
