@@ -40,26 +40,30 @@ const ProductDialogs = ({
     <>
       {/* Add Product Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-2xl bg-[#f8f4e5]">
+        <DialogContent className="max-w-2xl max-h-[90vh] bg-[#f8f4e5] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Product</DialogTitle>
           </DialogHeader>
-          <ProductForm onSubmit={onAddProduct} />
+          <div className="flex-1 overflow-y-auto">
+            <ProductForm onSubmit={onAddProduct} />
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Edit Product Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl bg-[#f8f4e5]">
+        <DialogContent className="max-w-2xl max-h-[90vh] bg-[#f8f4e5] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Product</DialogTitle>
           </DialogHeader>
-          {currentProduct && (
-            <ProductForm 
-              product={currentProduct} 
-              onSubmit={onEditProduct} 
-            />
-          )}
+          <div className="flex-1 overflow-y-auto">
+            {currentProduct && (
+              <ProductForm 
+                product={currentProduct} 
+                onSubmit={onEditProduct} 
+              />
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
