@@ -28,11 +28,17 @@ const Shop = () => {
   const loadProducts = async () => {
     try {
       setLoading(true);
+      console.log('Starting to load products...');
       const productsData = await fetchProducts();
+      console.log('Products loaded:', productsData);
       setProducts(productsData);
     } catch (error) {
+      console.error('Error loading products:', error);
       toast.error("Failed to load products");
-      console.error(error);
+      // Fallback to local data if Supabase fails
+      const { products: localProducts } = await import("../data/products");
+      setProducts(localProducts);
+      toast.info("Loaded products from local cache");
     } finally {
       setLoading(false);
     }

@@ -1,20 +1,6 @@
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-// Debug logging to check if environment variables are loaded
-console.log('Supabase URL:', supabaseUrl ? 'Present' : 'Missing')
-console.log('Supabase Anon Key:', supabaseAnonKey ? 'Present' : 'Missing')
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase environment variables are missing!')
-  console.error('VITE_SUPABASE_URL:', supabaseUrl)
-  console.error('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey)
-}
-
-import { createClient } from '@supabase/supabase-js'
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Use the working Supabase client from integrations
+export { supabase } from '../integrations/supabase/client'
 
 export type Database = {
   public: {
