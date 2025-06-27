@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Product } from "../data/products";
+import { Product } from "../types/product";
 import { useCart } from "../contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
