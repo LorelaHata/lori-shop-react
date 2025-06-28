@@ -8,7 +8,7 @@ type ProductInsert = Database['public']['Tables']['products']['Insert'];
 type ProductUpdate = Database['public']['Tables']['products']['Update'];
 
 export const fetchProducts = async (): Promise<Product[]> => {
-  console.log('Fetching products from Supabase...');
+  console.log('Fetching products from database...');
   
   const { data, error } = await supabase
     .from('products')

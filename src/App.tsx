@@ -41,12 +41,12 @@ const queryClient = new QueryClient({
   },
 });
 
-// Get the base name for routing based on environment - must match vite.config.ts base
+// Get the base name for routing based on environment
 const basename = import.meta.env.PROD ? "/lori-shop-react" : "";
 
-console.log("App loading - Environment:", import.meta.env.MODE);
-console.log("App loading - Base name:", basename);
-console.log("App loading - Current URL:", window.location.href);
+console.log("Application starting - Environment:", import.meta.env.MODE);
+console.log("Application starting - Base name:", basename);
+console.log("Application starting - Current URL:", window.location.href);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
