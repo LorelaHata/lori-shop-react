@@ -40,12 +40,18 @@ cd <project-directory>
 npm install
 ```
 
-3. Start the development server:
+3. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your database credentials
+```
+
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
-4. Open your browser and navigate to `http://localhost:8080`
+5. Open your browser and navigate to `http://localhost:8080`
 
 ## Available Scripts
 
@@ -65,6 +71,15 @@ src/
 ├── services/           # API service functions
 ├── data/               # Static data and utilities
 └── integrations/       # Database integrations
+```
+
+## Environment Variables
+
+Create a `.env` file in the root directory with:
+
+```
+VITE_DATABASE_URL=your_database_url
+VITE_DATABASE_ANON_KEY=your_database_anon_key
 ```
 
 ## Contributing

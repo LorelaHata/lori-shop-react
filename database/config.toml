@@ -1,1 +1,4 @@
-project_id = "pphqpwrkckpzdgwabzeo"
+
+# Database configuration
+# Update with your actual database project ID
+project_id = "your_project_id"
