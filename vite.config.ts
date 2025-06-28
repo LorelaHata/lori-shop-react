@@ -6,7 +6,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/lori-shop-react/",
+  base: mode === 'production' ? "/lori-shop-react/" : "/",
   server: {
     host: "::",
     port: 8080,
