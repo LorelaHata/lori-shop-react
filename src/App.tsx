@@ -41,6 +41,13 @@ const queryClient = new QueryClient({
   },
 });
 
+// Get the base name for routing based on environment
+const basename = import.meta.env.PROD ? "/lori-shop-react" : "";
+
+console.log("App loading - Environment:", import.meta.env.MODE);
+console.log("App loading - Base name:", basename);
+console.log("App loading - Current URL:", window.location.href);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ErrorBoundary>
@@ -50,7 +57,7 @@ const App = () => (
             <TooltipProvider>
               <Toaster />
               <Sonner />
-              <BrowserRouter>
+              <BrowserRouter basename={basename}>
                 <div className="flex flex-col min-h-screen">
                   <Navbar />
                   <main className="flex-1">
