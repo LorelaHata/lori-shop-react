@@ -1,6 +1,11 @@
 
-import { supabase } from '../lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import { Product } from '../data/products';
+
+type ProductRow = Database['public']['Tables']['products']['Row'];
+type ProductInsert = Database['public']['Tables']['products']['Insert'];
+type ProductUpdate = Database['public']['Tables']['products']['Update'];
 
 export const fetchProducts = async (): Promise<Product[]> => {
   console.log('Fetching products from Supabase...');
@@ -22,17 +27,19 @@ export const fetchProducts = async (): Promise<Product[]> => {
 export const createProduct = async (product: Omit<Product, 'id'>): Promise<Product> => {
   console.log('Creating product:', product);
   
+  const productInsert: ProductInsert = {
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    image: product.image,
+    category: product.category,
+    subcategory: product.subcategory || null,
+    stock: product.stock
+  };
+  
   const { data, error } = await supabase
     .from('products')
-    .insert([{
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      image: product.image,
-      category: product.category,
-      subcategory: product.subcategory || null,
-      stock: product.stock
-    }])
+    .insert([productInsert])
     .select()
     .single();
 
@@ -42,23 +49,25 @@ export const createProduct = async (product: Omit<Product, 'id'>): Promise<Produ
   }
 
   console.log('Product created successfully:', data);
-  return data;
+  return data as Product;
 };
 
 export const updateProduct = async (id: number, product: Omit<Product, 'id'>): Promise<Product> => {
   console.log('Updating product:', id, product);
   
+  const productUpdate: ProductUpdate = {
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    image: product.image,
+    category: product.category,
+    subcategory: product.subcategory || null,
+    stock: product.stock
+  };
+  
   const { data, error } = await supabase
     .from('products')
-    .update({
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      image: product.image,
-      category: product.category,
-      subcategory: product.subcategory || null,
-      stock: product.stock
-    })
+    .update(productUpdate)
     .eq('id', id)
     .select()
     .single();
@@ -69,7 +78,7 @@ export const updateProduct = async (id: number, product: Omit<Product, 'id'>): P
   }
 
   console.log('Product updated successfully:', data);
-  return data;
+  return data as Product;
 };
 
 export const deleteProduct = async (id: number): Promise<void> => {
