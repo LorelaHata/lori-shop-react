@@ -41,7 +41,7 @@ const queryClient = new QueryClient({
   },
 });
 
-// Get the base name for routing based on environment
+// Get the base name for routing based on environment - must match vite.config.ts base
 const basename = import.meta.env.PROD ? "/lori-shop-react" : "";
 
 console.log("App loading - Environment:", import.meta.env.MODE);
